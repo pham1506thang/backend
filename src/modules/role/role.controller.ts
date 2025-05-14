@@ -1,13 +1,13 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { RoleService } from "./role.service";
-import { Types } from "mongoose";
+import { Body, Controller, Post } from '@nestjs/common';
+import { RoleService } from './role.service';
+import { CreateRoleDTO } from './role.dto';
 
-@Controller("roles")
+@Controller('roles')
 export class RoleController {
-    constructor(private readonly roleService: RoleService) {}
+  constructor(private readonly roleService: RoleService) {}
 
-    @Post()
-    create(@Body() body: {domainId: string, actionId: string}) {
-        return this.roleService.create(new Types.ObjectId(body.domainId), new Types.ObjectId(body.actionId))
-    }
+  @Post()
+  create(@Body() body: CreateRoleDTO) {
+    return this.roleService.create(body);
+  }
 }

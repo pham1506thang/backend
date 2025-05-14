@@ -20,11 +20,11 @@ export class AuthService {
   }
 
   async login(username: string, password: string) {
-    const user = await this.validateUser(username, password)
+    const user = await this.validateUser(username, password);
     const payload = { sub: user.id, username: user.username, role: user.role };
 
     return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: "1d"}),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '1d' }),
       refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
     };
   }

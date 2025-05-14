@@ -12,13 +12,19 @@ export class UserController {
 
   @Post()
   // @RolePermission("user", "create")
-  createUser(@Body() body: { username: string; password: string, roleId: string }) {
-    return this.userService.createUser(body.username, body.password, new Types.ObjectId(body.roleId));
+  createUser(
+    @Body() body: { username: string; password: string; roleId: string },
+  ) {
+    return this.userService.createUser(
+      body.username,
+      body.password,
+      new Types.ObjectId(body.roleId),
+    );
   }
 
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission("user", "create")
+  @RolePermission('user', 'update')
   getUsers() {
     return this.userService.findAll();
   }

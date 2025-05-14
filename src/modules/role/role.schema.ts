@@ -1,18 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { BaseSchema } from 'src/common/schemas/base.schema';
 
 export type RoleDocument = Role & Document;
 
-@Schema({ timestamps: true })
-export class Role {
+@Schema()
+export class Role extends BaseSchema {
   @Prop({ required: true, unique: true, type: String })
   code: string; // "admin", "editor", "viewer"
 
   @Prop({ required: true, type: String })
   label: string;
 
-  @Prop({ required: true, type: Number})
-  weight: number;
+  @Prop({ required: true, type: Number })
+  priority: number;
 
   @Prop([
     {
