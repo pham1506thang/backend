@@ -1,26 +1,23 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
-  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
+import { Action, Domain } from 'common/constants/permissions';
 
 export class PermissionDto {
-  @IsMongoId()
-  @Transform(({ value }) => new Types.ObjectId(value as string))
-  domain: Types.ObjectId;
+  @IsString()
+  domain: Domain;
 
   @IsArray()
   @ArrayNotEmpty()
-  @IsMongoId({ each: true })
-  @Transform(({ value }) => value.map((id: string) => new Types.ObjectId(id)))
-  actions: Types.ObjectId[];
+  @IsString({ each: true })
+  actions: Action[];
 }
 
 export class CreateRoleDTO {
@@ -33,11 +30,6 @@ export class CreateRoleDTO {
   @IsNotEmpty()
   @Type(() => String)
   code: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  @Type(() => Number)
-  priority: number;
 
   @IsArray()
   @ArrayNotEmpty()

@@ -1,19 +1,21 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './user.schema';
-import { Model, Types } from 'mongoose';
+import { User } from './user.schema';
+import { Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-const saltRounds = 10;
+import { UserRepository } from './user.repository';
+import { SALT_ROUNDS } from 'common/constants/config';
+import { UpdateUserDTO } from './user.dto';
+
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(private userRepository: UserRepository) {}
 
-  async createUser(username: string, password: string, roleId: Types.ObjectId) {
+  async createUser(username: string, password: string, roleIds: Types.ObjectId[]) {
     try {
-      const newUser = new this.userModel({
+      const newUser = await this.userRepository.create({
         username,
-        password: bcrypt.hashSync(password, 10),
-        role: roleId,
+        password: bcrypt.hashSync(password, SALT_ROUNDS),
+        roles: roleIds,
       });
       return await newUser.save();
     } catch (e) {
@@ -24,11 +26,18 @@ export class UserService {
     }
   }
 
+  async updateUser(id: Types.ObjectId, dto: UpdateUserDTO) {
+    return this.userRepository.updateById(id, {
+      ...dto,
+      roles: dto.roleIds
+    });
+  }
+
   async findByUsername(username: string) {
-    return this.userModel.findOne({ username }).lean();
+    return this.userRepository.findOne({ username }, undefined, false, true);
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    return this.userRepository.findAll(undefined, { password: 0 }, false, true);
   }
 }

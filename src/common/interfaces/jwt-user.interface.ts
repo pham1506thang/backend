@@ -1,4 +1,13 @@
-export interface JWTUser {
+import { Types } from "mongoose";
+
+export interface JwtPayload {
+  _id: string;
   username: string;
-  role: string;
+  roles: string[];
+}
+
+export interface JwtUser {
+  _id: Types.ObjectId;
+  username: string;
+  roles: Types.ObjectId[];
 }

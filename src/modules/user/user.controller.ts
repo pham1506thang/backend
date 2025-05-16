@@ -1,30 +1,43 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Patch, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { RoleGuard } from '../role/role.guard';
+import { CreateUserDTO, UpdateUserDTO } from './user.dto';
 import { RolePermission } from '../role/role-permission.decorator';
+import { Action, Domain } from 'common/constants/permissions';
 import { Types } from 'mongoose';
 
-@Controller('users')
-// @UseGuards(JwtAuthGuard, RoleGuard)
+@Controller(Domain.Users)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  // @RolePermission("user", "create")
-  createUser(
-    @Body() body: { username: string; password: string; roleId: string },
-  ) {
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @RolePermission(Domain.Users, Action.Create)
+  createUser(@Body() createUserDto: CreateUserDTO) {
     return this.userService.createUser(
-      body.username,
-      body.password,
-      new Types.ObjectId(body.roleId),
+      createUserDto.username,
+      createUserDto.password,
+      createUserDto.roleIds || [],
+    );
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @RolePermission(Domain.Users, Action.Update)
+  updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDTO,
+  ) {
+    return this.userService.updateUser(
+      new Types.ObjectId(id),
+      updateUserDto,
     );
   }
 
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission('user', 'update')
+  @RolePermission(Domain.Users, Action.View)
   getUsers() {
     return this.userService.findAll();
   }

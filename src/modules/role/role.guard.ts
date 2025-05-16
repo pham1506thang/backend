@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Reflector } from '@nestjs/core';
-import { JWTUser } from 'src/common/interfaces/jwt-user.interface';
-import { RoleService } from 'src/modules/role/role.service';
+import { JwtPayload } from 'common/interfaces/jwt-user.interface';
+import { RoleService } from 'modules/role/role.service';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -13,13 +13,21 @@ export class RoleGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const user = req.user as JWTUser;
-
+    const user = req.user as JwtPayload;
+    
     if (!user) return false;
+
     const { domain, action } =
       this.reflector.get('role-permission', context.getHandler()) || {};
+
+    // If no permission requirements are set, allow access
+    if (!domain || !action) return true;
+
+    // Convert roles to ObjectIds if they exist
+    const roleIds = user.roles?.map(roleId => new Types.ObjectId(roleId)) || [];
+    
     return await this.roleService.hasPermission(
-      new Types.ObjectId(user.role),
+      roleIds,
       domain,
       action,
     );
