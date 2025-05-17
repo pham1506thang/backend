@@ -15,11 +15,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @RolePermission(Domain.Users, Action.Create)
   createUser(@Body() createUserDto: CreateUserDTO) {
-    return this.userService.createUser(
-      createUserDto.username,
-      createUserDto.password,
-      createUserDto.roleIds || [],
-    );
+    return this.userService.createUser(createUserDto);
   }
 
   @Patch(':id')
@@ -37,7 +33,7 @@ export class UserController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(Domain.Users, Action.View)
+  @RolePermission(Domain.Users, Action.Read)
   getUsers() {
     return this.userService.findAll();
   }

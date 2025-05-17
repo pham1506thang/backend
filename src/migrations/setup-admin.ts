@@ -20,13 +20,12 @@ async function bootstrap() {
       isProtected: true, // This will prevent the role from being deleted, updated
       permissions: [] // Empty permissions since isAdmin=true grants all access
     });
-
     // Create admin user
-    const adminUser = await userService.createUser(
-      configService.getOrThrow<string>('ADMIN_USERNAME'),
-      configService.getOrThrow<string>('ADMIN_PASSWORD'),
-      [adminRole._id as unknown as Types.ObjectId]
-    );
+    const adminUser = await userService.createUser({
+      username: configService.getOrThrow<string>('ADMIN_USERNAME'),
+      password: configService.getOrThrow<string>('ADMIN_PASSWORD'),
+      roles: [adminRole._id]
+    });
 
     console.log('✅ Admin role and user created successfully');
     console.log('Admin Role ID:', adminRole._id);

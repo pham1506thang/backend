@@ -4,18 +4,18 @@ import { Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { SALT_ROUNDS } from 'common/constants/config';
-import { UpdateUserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserDTO } from './user.dto';
 
 @Injectable()
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
-  async createUser(username: string, password: string, roleIds: Types.ObjectId[]) {
+  async createUser(dto: CreateUserDTO) {
     try {
+      const hashedPassword = bcrypt.hashSync(dto.password, SALT_ROUNDS);
       const newUser = await this.userRepository.create({
-        username,
-        password: bcrypt.hashSync(password, SALT_ROUNDS),
-        roles: roleIds,
+        ...dto,
+        password: hashedPassword,
       });
       return await newUser.save();
     } catch (e) {
@@ -33,11 +33,19 @@ export class UserService {
     });
   }
 
+  async updateLastLogin(id: Types.ObjectId) {
+    return this.userRepository.updateLastLoginOnly(id);
+  }
+
   async findByUsername(username: string) {
-    return this.userRepository.findOne({ username }, undefined, false, true);
+    return this.userRepository.findByUsername(username);
+  }
+
+  async findByUsernameWithRoles(username: string) {
+    return this.userRepository.findOneWithRoles(username);
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.findAll(undefined, { password: 0 }, false, true);
+    return this.userRepository.findAllWithRoles();
   }
 }

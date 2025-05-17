@@ -1,6 +1,6 @@
 export enum Action {
   Create = 'create',
-  View = 'view',
+  Read = 'read',
   Update = 'update',
   Delete = 'delete',
 }

@@ -10,6 +10,12 @@ export class User extends BaseSchema {
   username: string;
   @Prop({ required: true })
   password: string;
+  @Prop({ required: false })
+  name?: string;
+  @Prop({ required: false })
+  email?: string;
+  @Prop({ type: Date, required: false })
+  lastLogin?: Date;
   @Prop({ 
     type: [{ type: Types.ObjectId, ref: 'Role' }],
     default: [] 
