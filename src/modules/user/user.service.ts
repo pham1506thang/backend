@@ -1,10 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from './user.schema';
 import { Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { SALT_ROUNDS } from 'common/constants/config';
-import { CreateUserDTO, UpdateUserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -47,5 +47,26 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.findAllWithRoles();
+  }
+
+  async changePassword(userId: Types.ObjectId, dto: ChangePasswordDTO) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Hash new password
+    const hashedPassword = bcrypt.hashSync(dto.newPassword, SALT_ROUNDS);
+
+    // Update password
+    return this.userRepository.updateById(userId, {
+      password: hashedPassword
+    });
   }
 }

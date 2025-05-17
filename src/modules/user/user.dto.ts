@@ -38,4 +38,14 @@ export class UpdateUserDTO {
   @IsOptional()
   @Transform(({ value }) => value ? value.map((id: string) => new Types.ObjectId(id)) : [])
   roleIds?: Types.ObjectId[];
+}
+
+export class ChangePasswordDTO {
+  @IsString()
+  @IsNotEmpty()
+  currentPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
+  newPassword: string;
 } 

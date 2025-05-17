@@ -2,11 +2,11 @@ import { Body, Controller, Post, UseGuards, Patch, Param, Delete } from '@nestjs
 import { RoleService } from './role.service';
 import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
 import { Action, Domain } from 'common/constants/permissions';
-import { RoleGuard } from './role.guard';
-import { RolePermission } from './role-permission.decorator';
-import { JwtAuthGuard } from 'modules/auth/auth.guard';
-import { ProtectedRoleGuard } from './protected-role.guard';
-import { AdminRoleGuard } from './admin-role.guard';
+import { RoleGuard } from '../../common/guards/role.guard';
+import { RolePermission } from '../../common/decorators/role-permission.decorator';
+import { JwtAuthGuard } from 'common/guards/auth.guard';
+import { ProtectedRoleGuard } from '../../common/guards/protected-role.guard';
+import { AdminRoleGuard } from '../../common/guards/admin-role.guard';
 
 @Controller(Domain.Roles)
 export class RoleController {

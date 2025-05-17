@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
-import { RoleService } from './role.service';
+import { RoleService } from '../../modules/role/role.service';
 import { Types } from 'mongoose';
 
 @Injectable()
