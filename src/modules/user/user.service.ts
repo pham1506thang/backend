@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from './user.schema';
 import { Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -27,10 +27,7 @@ export class UserService {
   }
 
   async updateUser(id: Types.ObjectId, dto: UpdateUserDTO) {
-    return this.userRepository.updateById(id, {
-      ...dto,
-      roles: dto.roleIds
-    });
+    return this.userRepository.updateById(id, dto);
   }
 
   async updateLastLogin(id: Types.ObjectId) {
@@ -58,7 +55,7 @@ export class UserService {
     // Verify current password
     const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Current password is incorrect');
+      throw new BadRequestException('Current password is incorrect');
     }
 
     // Hash new password

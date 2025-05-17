@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { Action, Domain } from 'common/constants/permissions';
+import { ActionType, DomainType } from 'common/constants/permissions';
 
-export const RolePermission = (domain: Domain, action: Action) =>
+export const RolePermission = (domain: DomainType, action: ActionType) =>
   SetMetadata('role-permission', { domain, action });

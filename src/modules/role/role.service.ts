@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import { RoleRepository } from './role.repository';
 import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
 import _ from 'lodash';
-import { Action, Domain } from 'common/constants/permissions';
+import { ActionType, DomainType } from 'common/constants/permissions';
 
 @Injectable()
 export class RoleService {
@@ -21,8 +21,8 @@ export class RoleService {
 
   async hasPermission(
     roleIds: Types.ObjectId[],
-    domain: Domain,
-    action: Action,
+    domain: DomainType,
+    action: ActionType,
   ): Promise<boolean> {
     // If no roles, deny access
     if (roleIds.length === 0) return false;

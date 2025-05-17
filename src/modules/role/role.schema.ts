@@ -1,14 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose'; 
 import { BaseSchema } from 'common/schemas/base.schema';
-import { Action, Domain } from 'common/constants/permissions';
+import { Permission } from 'common/constants/permissions';
 
 export type RoleDocument = Role & Document;
-
-interface Permission {
-  domain: Domain;
-  actions: Action[];
-}
 
 @Schema({ timestamps: true })
 export class Role extends BaseSchema {

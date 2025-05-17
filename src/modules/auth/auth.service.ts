@@ -1,24 +1,26 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 import { JwtPayload } from 'common/interfaces/jwt-user.interface';
 import { User, UserDocument } from '../user/user.schema';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<User> {
-    const user = await this.userService.findByUsernameWithRoles(username);
+    const user = await this.userService.findByUsername(username);
     if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
-    throw new UnauthorizedException();
+    throw new BadRequestException('Invalid username or password');
   }
 
   private generateAuthResponse(user: User) {
@@ -28,13 +30,11 @@ export class AuthService {
       roles: user.roles.map(role => role._id.toString())
     };
 
-    const plainUser = user.toObject();
-    delete plainUser.password;
+    const accessTokenExpires = this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRES_IN') || '10s';
     
     return {
-      user: plainUser,
-      accessToken: this.jwtService.sign(payload, { expiresIn: '1d' }),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      accessToken: this.jwtService.sign(payload, { expiresIn: accessTokenExpires }),
+      refreshToken: this.jwtService.sign(payload),
     };
   }
 
@@ -49,11 +49,13 @@ export class AuthService {
 
   async refreshToken(token: string) {
     try {
-      // Verify the refresh token
-      const payload = this.jwtService.verify(token) as JwtPayload;
+      // Verify the refresh token but ignore expiration
+      const payload = this.jwtService.verify(token, {
+        ignoreExpiration: true // Ignore JWT expiration since we're using cookie expiration
+      }) as JwtPayload;
       
-      // Get user with populated roles
-      const user = await this.userService.findByUsernameWithRoles(payload.username);
+      // Get user to verify it exists
+      const user = await this.userService.findByUsername(payload.username);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }

@@ -1,10 +1,32 @@
-import { Body, Controller, Post, Res, UnauthorizedException, Get, Req } from '@nestjs/common';
+import { Body, Controller, Post, Res, UnauthorizedException, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
+import { JwtAuthGuard } from '../../common/guards/auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { JwtUser } from 'common/interfaces/jwt-user.interface';
+import { UserService } from '../user/user.service';
+import { CookieOptions } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auths')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+    private configService: ConfigService,
+  ) {}
+
+  private getRefreshTokenCookieOptions(): CookieOptions {
+    const defaultExpires = 20; // 20 seconds in milliseconds
+    const configExpires = this.configService.get<string>('COOKIE_REFRESH_TOKEN_EXPIRES_IN');
+    const refreshTokenExpires = configExpires ? Number(configExpires) * 1000 : defaultExpires;
+    return {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: refreshTokenExpires,
+    };
+  }
 
   @Post('login')
   async login(
@@ -14,12 +36,7 @@ export class AuthController {
     const result = await this.authService.login(body.username, body.password);
     
     // Set refresh token in httpOnly cookie
-    response.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    response.cookie('refreshToken', result.refreshToken, this.getRefreshTokenCookieOptions());
 
     // Don't send refresh token in response body
     const { refreshToken, ...responseData } = result;
@@ -39,15 +56,22 @@ export class AuthController {
     const result = await this.authService.refreshToken(refreshToken);
     
     // Set new refresh token in cookie
-    response.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    response.cookie('refreshToken', result.refreshToken, this.getRefreshTokenCookieOptions());
 
     // Don't send refresh token in response body
     const { refreshToken: newRefreshToken, ...responseData } = result;
     return responseData;
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getCurrentUser(@CurrentUser() user: JwtUser) {
+    const userWithRoles = await this.userService.findByUsernameWithRoles(user.username);
+    if (!userWithRoles) {
+      throw new UnauthorizedException('User not found');
+    }
+    const plainUser = userWithRoles.toObject();
+    delete plainUser.password;
+    return plainUser;
   }
 }

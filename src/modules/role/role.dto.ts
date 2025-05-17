@@ -4,20 +4,19 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
-  IsNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Action, Domain } from 'common/constants/permissions';
+import { ActionType, DomainType } from 'common/constants/permissions';
 
 export class PermissionDto {
   @IsString()
-  domain: Domain;
+  domain: DomainType;
 
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
-  actions: Action[];
+  actions: ActionType[];
 }
 
 export class CreateRoleDTO {
