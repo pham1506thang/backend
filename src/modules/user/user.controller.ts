@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, UseGuards, Patch, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Patch, Param, Put, Query } from '@nestjs/common';
+import { PaginationParams } from '../../common/interfaces/pagination.interface';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
 import { RoleGuard } from '../../common/guards/role.guard';
@@ -8,10 +9,15 @@ import { Actions, Domains } from 'common/constants/permissions';
 import { Types } from 'mongoose';
 import { CurrentUser } from 'common/decorators/current-user.decorator';
 import { JwtUser } from 'common/interfaces/jwt-user.interface';
+import { GrowthBookService } from 'modules/growthbook/growthbook.service';
+import { ControllerFeatureGuard } from 'common/guards/controller-feature.guard';
+import { ControllerFeature } from 'common/decorators/controller-feature.decorator';
 
 @Controller(Domains.Users)
+@UseGuards(ControllerFeatureGuard)
+@ControllerFeature(Domains.Users)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService, private readonly growthBookService: GrowthBookService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -23,8 +29,8 @@ export class UserController {
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @RolePermission(Domains.Users, Actions.Read)
-  getUsers() {
-    return this.userService.findAll();
+  getUsers(@Query() params: PaginationParams) {
+    return this.userService.findAll(params);
   }
 
   @Patch('change-password')

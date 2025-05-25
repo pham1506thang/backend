@@ -21,6 +21,7 @@
     "setup:admin": "ts-node -r tsconfig-paths/register src/migrations/setup-admin.ts"
   },
   "dependencies": {
+    "@growthbook/growthbook": "^1.5.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
