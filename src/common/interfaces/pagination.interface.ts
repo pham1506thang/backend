@@ -20,11 +20,3 @@ export interface PaginationResult<T> {
     totalPages: number;
   };
 }
-
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sorts?: SortField[];
-  filters?: FilterField[];
-  search?: string;
-}

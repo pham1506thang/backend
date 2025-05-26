@@ -1,5 +1,6 @@
 import { FilterQuery } from 'mongoose';
-import { FilterField, FilterOperator, PaginationParams, PaginationResult } from '../interfaces/pagination.interface';
+import { FilterField, FilterOperator, PaginationResult } from '../interfaces/pagination.interface';
+import { PaginationParamsDto } from '../dto/pagination-params.dto';
 
 export const convertFiltersToMongoQuery = (filters: FilterField[]): FilterQuery<any> => {
   if (!filters?.length) return {};
@@ -44,7 +45,7 @@ export const convertFiltersToMongoQuery = (filters: FilterField[]): FilterQuery<
   return query;
 };
 
-const convertSortParams = (params: PaginationParams) => {
+const convertSortParams = (params: PaginationParamsDto) => {
   if (!params.sorts?.length) return {};
 
   const sort: Record<string, 1 | -1> = {};
@@ -66,7 +67,7 @@ const convertSearchToMongoQuery = (search: string, searchFields: string[]): Filt
 };
 
 export const getMongoQueryFromPaginationParams = (
-  params: PaginationParams, 
+  params: PaginationParamsDto, 
   searchFields: string[] = []
 ): { query: FilterQuery<any>, sort: Record<string, 1 | -1> } => {
   // Start with base query from filters
@@ -90,7 +91,7 @@ export const getMongoQueryFromPaginationParams = (
 export const buildPaginationResponse = <T>(
   data: T[],
   total: number,
-  params: PaginationParams
+  params: PaginationParamsDto
 ): PaginationResult<T> => {
   return {
     data,

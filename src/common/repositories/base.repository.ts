@@ -8,7 +8,8 @@ import {
 } from 'mongoose';
 import { BaseSchema } from '../schemas/base.schema';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { PaginationParams, PaginationResult } from '../interfaces/pagination.interface';
+import { PaginationResult } from '../interfaces/pagination.interface';
+import { PaginationParamsDto } from '../dto/pagination-params.dto';
 import { buildPaginationResponse, getMongoQueryFromPaginationParams } from '../utils/pagination.utils';
 
 export abstract class BaseRepository<T extends BaseSchema> {
@@ -152,7 +153,7 @@ export abstract class BaseRepository<T extends BaseSchema> {
   }
 
   async paginate<P extends boolean = true, R = P extends true ? T : Document<T>>(
-    params: PaginationParams,
+    params: PaginationParamsDto,
     searchFields: string[] = [],
     baseQuery: FilterQuery<T> = {},
     projection: ProjectionType<T> = {},

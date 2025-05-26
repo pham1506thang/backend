@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards, Patch, Param, Put, Query } from '@nestjs/common';
-import { PaginationParams } from '../../common/interfaces/pagination.interface';
+import { PaginationParamsDto } from '../../common/dto/pagination-params.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
 import { RoleGuard } from '../../common/guards/role.guard';
@@ -29,7 +29,7 @@ export class UserController {
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @RolePermission(Domains.Users, Actions.Read)
-  getUsers(@Query() params: PaginationParams) {
+  getUsers(@Query() params: PaginationParamsDto) {
     return this.userService.findAll(params);
   }
 
