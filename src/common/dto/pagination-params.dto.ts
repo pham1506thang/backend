@@ -8,37 +8,42 @@ import {
   IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  FilterField,
-  SortField,
-  FilterOperator,
-} from '../interfaces/pagination.interface';
+import { SortField, FilterField } from 'common/interfaces/pagination.interface';
+import { Types } from 'mongoose';
 
 export class SortFieldDto implements SortField {
   @IsString()
-  field: string;
+  field: SortField['field'];
 
   @IsString()
-  order: 'ascend' | 'descend';
+  order: SortField['order'];
 }
 
 export class FilterFieldDto implements FilterField {
   @IsString()
-  field: string;
+  field: FilterField['field'];
 
   @IsOptional()
-  operator?: FilterOperator;
+  operator?: FilterField['operator'];
 
   @IsOptional()
-  value: string | number | boolean | Array<string | number>;
+  value: FilterField['value'];
 }
 
-function parseJsonArrayToDto<T>(dtoClass: new () => T) {
+function parseJsonArrayToDto<T>(dtoClass: new () => T, objectIdFields: string[] = []) {
   return ({ value }: { value: string }) => {
     try {
       const parsed = JSON.parse(value);
       if (!Array.isArray(parsed)) return [];
-      return plainToInstance(dtoClass, parsed);
+      const converted = parsed.map((item: any) => {
+        objectIdFields.forEach((field) => {
+          if (item[field] && Types.ObjectId.isValid(item[field])) {
+            item[field] = new Types.ObjectId(item[field]);
+          }
+        });
+        return item;
+      });
+      return plainToInstance(dtoClass, converted);
     } catch {
       return [];
     }
@@ -62,7 +67,7 @@ export class PaginationParamsDto {
   sorts?: SortFieldDto[];
 
   @IsOptional()
-  @Transform(parseJsonArrayToDto(FilterFieldDto))
+  @Transform(parseJsonArrayToDto(FilterFieldDto, ['roles']))
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FilterFieldDto)
