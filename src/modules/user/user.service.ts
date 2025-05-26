@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from './user.schema';
 import { Types } from 'mongoose';
-import { PaginationParamsDto } from '../../common/dto/pagination-params.dto';
+import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { SALT_ROUNDS } from 'common/constants/config';

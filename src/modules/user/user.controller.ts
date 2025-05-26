@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Post, UseGuards, Patch, Param, Put, Query } from '@nestjs/common';
-import { PaginationParamsDto } from '../../common/dto/pagination-params.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
 import { RoleGuard } from '../../common/guards/role.guard';
@@ -12,6 +11,7 @@ import { JwtUser } from 'common/interfaces/jwt-user.interface';
 import { GrowthBookService } from 'modules/growthbook/growthbook.service';
 import { ControllerFeatureGuard } from 'common/guards/controller-feature.guard';
 import { ControllerFeature } from 'common/decorators/controller-feature.decorator';
+import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 
 @Controller(Domains.Users)
 @UseGuards(ControllerFeatureGuard)

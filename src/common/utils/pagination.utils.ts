@@ -1,6 +1,6 @@
 import { FilterQuery } from 'mongoose';
-import { FilterField, FilterOperator, PaginationResult } from '../interfaces/pagination.interface';
-import { PaginationParamsDto } from '../dto/pagination-params.dto';
+import { FilterField, FilterOperator, PaginationResult } from 'common/interfaces/pagination.interface';
+import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 
 export const convertFiltersToMongoQuery = (filters: FilterField[]): FilterQuery<any> => {
   if (!filters?.length) return {};

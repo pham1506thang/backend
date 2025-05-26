@@ -8,8 +8,8 @@ import {
 } from 'mongoose';
 import { BaseSchema } from '../schemas/base.schema';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { PaginationResult } from '../interfaces/pagination.interface';
-import { PaginationParamsDto } from '../dto/pagination-params.dto';
+import { PaginationResult } from 'common/interfaces/pagination.interface';
+import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 import { buildPaginationResponse, getMongoQueryFromPaginationParams } from '../utils/pagination.utils';
 
 export abstract class BaseRepository<T extends BaseSchema> {
