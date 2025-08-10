@@ -1,5 +1,3 @@
-import { Types } from "mongoose";
-
 export interface JwtPayload {
   _id: string;
   username: string;
@@ -7,7 +5,7 @@ export interface JwtPayload {
 }
 
 export interface JwtUser {
-  _id: Types.ObjectId;
+  _id: string;
   username: string;
-  roles: Types.ObjectId[];
+  roles: string[];
 }

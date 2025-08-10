@@ -1,60 +1,79 @@
 import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { User } from './user.schema';
-import { Types } from 'mongoose';
+import { User } from './user.entity';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
+import { RoleRepository } from '../role/role.repository';
 import { SALT_ROUNDS } from 'common/constants/config';
-import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, UpdateUserRolesDTO } from './user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private roleRepository: RoleRepository,
+  ) { }
 
-  async createUser(dto: CreateUserDTO) {
+  async findPaginatedUsers(params: PaginationParamsDto) {
+    return this.userRepository.findWithPagination(params)
+  }
+  
+  async findByUsername(username: string) {
+    return this.userRepository.findByUsername(username);
+  }
+
+  async findById(id: string) {
+    return this.userRepository.findById(id);
+  }
+
+  async createUser(dto: CreateUserDTO): Promise<User> {
     try {
       const hashedPassword = bcrypt.hashSync(dto.password, SALT_ROUNDS);
-      const newUser = await this.userRepository.create({
-        ...dto,
+      const { roles, ...rest } = dto;
+      const userData: Partial<User> = {
+        ...rest,
         password: hashedPassword,
-      });
-      return await newUser.save();
+      };
+      if (roles && roles.length > 0) {
+        const foundRoles = await this.roleRepository.findByIds(roles);
+        if (foundRoles.length !== roles.length) {
+          throw new BadRequestException('Một hoặc nhiều role không hợp lệ');
+        }
+        userData.roles = foundRoles;
+      }
+      return await this.userRepository.create(userData);
     } catch (e) {
-      if (e.code === 11000) {
+      if (e.code === '23505') {
         throw new ConflictException('Username đã tồn tại');
       }
       throw e;
     }
   }
 
-  async updateUser(id: Types.ObjectId, dto: UpdateUserDTO) {
-    return this.userRepository.updateById(id, dto);
+  async updateUser(id: string, dto: UpdateUserDTO): Promise<User | null> {
+    await this.userRepository.update(id, dto);
+    return this.userRepository.findById(id);
   }
 
-  async updateLastLogin(id: Types.ObjectId) {
+  async updateUserRoles(id: string, dto: UpdateUserRolesDTO): Promise<User | null> {
+    if (!dto.roles || dto.roles.length === 0) {
+      await this.userRepository.update(id, { roles: [] });
+      return this.userRepository.findById(id)
+    }
+    const foundRoles = await this.roleRepository.findByIds(dto.roles);
+    if (foundRoles.length !== dto.roles.length) {
+      throw new BadRequestException('Một hoặc nhiều role không hợp lệ');
+    }
+    await this.userRepository.update(id, { roles: foundRoles });
+    return this.userRepository.findById(id)
+  }
+
+  async updateLastLogin(id: string) {
     return this.userRepository.updateLastLoginOnly(id);
   }
 
-  async findByUsername(username: string) {
-    return this.userRepository.findByUsername(username);
-  }
 
-  async findByUsernameWithRoles(username: string) {
-    return this.userRepository.findOneWithRoles(username);
-  }
-
-  async findAll(params: PaginationParamsDto) {
-    return this.userRepository.paginate(
-      params,
-      ['username', 'email', 'name'], // searchable fields
-      {}, // base query
-      { password: 0 }, // exclude password
-      false, // don't include deleted
-      'roles' // populate roles
-    );
-  }
-
-  async changePassword(userId: Types.ObjectId, dto: ChangePasswordDTO) {
+  async changePassword(userId: string, dto: ChangePasswordDTO) {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -70,7 +89,7 @@ export class UserService {
     const hashedPassword = bcrypt.hashSync(dto.newPassword, SALT_ROUNDS);
 
     // Update password
-    return this.userRepository.updateById(userId, {
+    await this.userRepository.update(userId, {
       password: hashedPassword
     });
   }

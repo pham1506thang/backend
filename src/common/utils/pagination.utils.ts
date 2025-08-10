@@ -1,98 +1,123 @@
-import { FilterQuery } from 'mongoose';
-import { FilterField, FilterOperator, PaginationResult } from 'common/interfaces/pagination.interface';
+import { FilterField, PaginationResult } from 'common/interfaces/pagination.interface';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
+import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
-export const convertFiltersToMongoQuery = (filters: FilterField[]): FilterQuery<any> => {
-  if (!filters?.length) return {};
-
-  const query: FilterQuery<any> = {};
-
+export function applyFilters<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, filters: FilterField[] = []): SelectQueryBuilder<T> {
   filters.forEach(filter => {
     const operator = filter.operator || 'eq';
+    const paramKey = `${filter.field}_param`;
+    const field = `${qb.alias}.${filter.field}`;
+
     switch (operator) {
       case 'eq':
-        query[filter.field] = filter.value;
+        if (filter.value === null) {
+          qb.andWhere(`${field} IS NULL`);
+        } else {
+          qb.andWhere(`${field} = :${paramKey}`, { [paramKey]: filter.value });
+        }
         break;
       case 'neq':
-        query[filter.field] = { $ne: filter.value };
+        if (filter.value === null) {
+          qb.andWhere(`${field} IS NOT NULL`);
+        } else {
+          qb.andWhere(`${field} != :${paramKey}`, { [paramKey]: filter.value });
+        }
         break;
       case 'contains':
-        query[filter.field] = { $regex: String(filter.value), $options: 'i' };
+        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, { [paramKey]: `%${filter.value}%` });
+        break;
+      case 'not_contains':
+        qb.andWhere(`LOWER(${field}) NOT ILIKE LOWER(:${paramKey})`, { [paramKey]: `%${filter.value}%` });
+        break;
+      case 'starts_with':
+        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, { [paramKey]: `${filter.value}%` });
+        break;
+      case 'ends_with':
+        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, { [paramKey]: `%${filter.value}` });
         break;
       case 'in':
-        query[filter.field] = { $in: filter.value };
+        if (Array.isArray(filter.value) && filter.value.length > 0) {
+          qb.andWhere(`${field} IN (:...${paramKey})`, { [paramKey]: filter.value });
+        }
         break;
       case 'nin':
-        query[filter.field] = { $nin: filter.value };
+        if (Array.isArray(filter.value) && filter.value.length > 0) {
+          qb.andWhere(`${field} NOT IN (:...${paramKey})`, { [paramKey]: filter.value });
+        }
         break;
       case 'gt':
-        query[filter.field] = { $gt: filter.value };
+        qb.andWhere(`${field} > :${paramKey}`, { [paramKey]: filter.value });
         break;
       case 'gte':
-        query[filter.field] = { $gte: filter.value };
+        qb.andWhere(`${field} >= :${paramKey}`, { [paramKey]: filter.value });
         break;
       case 'lt':
-        query[filter.field] = { $lt: filter.value };
+        qb.andWhere(`${field} < :${paramKey}`, { [paramKey]: filter.value });
         break;
       case 'lte':
-        query[filter.field] = { $lte: filter.value };
+        qb.andWhere(`${field} <= :${paramKey}`, { [paramKey]: filter.value });
+        break;
+      case 'is_null':
+        qb.andWhere(`${field} IS NULL`);
+        break;
+      case 'is_not_null':
+        qb.andWhere(`${field} IS NOT NULL`);
+        break;
+      case 'between':
+        if (Array.isArray(filter.value) && filter.value.length === 2) {
+          qb.andWhere(`${field} BETWEEN :${paramKey}_start AND :${paramKey}_end`, {
+            [`${paramKey}_start`]: filter.value[0],
+            [`${paramKey}_end`]: filter.value[1]
+          });
+        }
         break;
       default:
-        query[filter.field] = filter.value;
+        if (filter.value !== null) {
+          qb.andWhere(`${field} = :${paramKey}`, { [paramKey]: filter.value });
+        }
     }
   });
+  return qb;
+}
 
-  return query;
-};
-
-const convertSortParams = (params: PaginationParamsDto) => {
-  if (!params.sorts?.length) return {};
-
-  const sort: Record<string, 1 | -1> = {};
-  params.sorts.forEach(sortField => {
-    sort[sortField.field] = sortField.order === 'ascend' ? 1 : -1;
+// Hàm áp dụng sort cho QueryBuilder
+export function applySorts<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, sorts: { field: string, order: 'ascend' | 'descend' }[] = []): SelectQueryBuilder<T> {
+  sorts.forEach(sort => {
+    qb.addOrderBy(`${qb.alias}.${sort.field}`, sort.order === 'ascend' ? 'ASC' : 'DESC');
   });
+  return qb;
+}
 
-  return sort;
-};
+export function applySearch<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, search: string, searchFields: string[] = []): SelectQueryBuilder<T> {
+  if (search && searchFields.length) {
+    const conditions = searchFields.map(field => {
+      // Handle numeric fields differently
+      if (field.endsWith('_id') || field.includes('number') || field.includes('amount')) {
+        if (!isNaN(Number(search))) {
+          return `CAST(${qb.alias}.${field} AS TEXT) = :exactSearch`;
+        }
+        return '1=0'; // Always false for non-numeric search on numeric fields
+      }
+      // Use ILIKE for case-insensitive search on text fields
+      return `LOWER(CAST(${qb.alias}.${field} AS TEXT)) ILIKE LOWER(:search)`;
+    });
 
-const convertSearchToMongoQuery = (search: string, searchFields: string[]): FilterQuery<any> => {
-  if (!search || !searchFields?.length) return {};
+    qb.andWhere(`(${conditions.join(' OR ')})`, {
+      search: `%${search}%`,
+      exactSearch: search
+    });
+  }
+  return qb;
+}
 
-  return {
-    $or: searchFields.map(field => ({
-      [field]: { $regex: search, $options: 'i' }
-    }))
-  };
-};
-
-export const getMongoQueryFromPaginationParams = (
-  params: PaginationParamsDto, 
-  searchFields: string[] = []
-): { query: FilterQuery<any>, sort: Record<string, 1 | -1> } => {
-  // Start with base query from filters
-  const baseQuery = convertFiltersToMongoQuery(params.filters || []);
-
-  // Add search query if search parameter exists
-  const searchQuery = convertSearchToMongoQuery(params.search || '', searchFields);
-
-  // Combine queries
-  const query = {
-    ...baseQuery,
-    ...(Object.keys(searchQuery).length ? searchQuery : {})
-  };
-
-  // Get sort parameters
-  const sort = convertSortParams(params);
-
-  return { query, sort };
-};
-
-export const buildPaginationResponse = <T>(
-  data: T[],
-  total: number,
+export async function buildPaginationResponse<T extends ObjectLiteral>(
+  qb: SelectQueryBuilder<T>,
   params: PaginationParamsDto
-): PaginationResult<T> => {
+): Promise<PaginationResult<T>> {
+  const [data, total] = await qb
+    .skip((params.page - 1) * params.limit)
+    .take(params.limit)
+    .getManyAndCount();
   return {
     data,
     meta: {
@@ -102,4 +127,4 @@ export const buildPaginationResponse = <T>(
       totalPages: Math.ceil(total / params.limit)
     }
   };
-};
+}

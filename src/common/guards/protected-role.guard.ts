@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { RoleService } from '../../modules/role/role.service';
-import { Types } from 'mongoose';
 
 @Injectable()
 export class ProtectedRoleGuard implements CanActivate {
@@ -12,15 +11,13 @@ export class ProtectedRoleGuard implements CanActivate {
     const roleId = request.params.id;
     const user = request.user;
 
-    // Only check for PATCH and DELETE methods
-    if (!roleId || (method !== 'PATCH' && method !== 'DELETE')) {
+    // Only check for PATCH / PUT and DELETE methods
+    if (!roleId || (method !== 'PATCH' && method !== 'DELETE' && method !== 'PUT')) {
       return true;
     }
 
-    const targetRole = await this.roleService.findById(new Types.ObjectId(roleId));
-    const userRoles = await this.roleService.findByIds(
-      user.roles.map(id => new Types.ObjectId(id))
-    );
+    const targetRole = await this.roleService.findById(roleId);
+    const userRoles = await this.roleService.findByIds(user.roles);
     
     // Check if user has any admin role
     const hasAdminRole = userRoles.some(role => role.isAdmin);
@@ -34,11 +31,13 @@ export class ProtectedRoleGuard implements CanActivate {
       return true;
     }
 
-    // For non-admin users, check if role is protected
+    if (!targetRole) {
+      throw new ForbiddenException('Role not found');
+    }
     if (targetRole.isProtected) {
       throw new ForbiddenException('Cannot modify or delete protected roles');
     }
 
     return true;
   }
-} 
+}

@@ -2,9 +2,8 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
 import { JwtPayload } from 'common/interfaces/jwt-user.interface';
-import { User, UserDocument } from '../user/user.schema';
+import { User } from '../user/user.entity';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -25,9 +24,9 @@ export class AuthService {
 
   private generateAuthResponse(user: User) {
     const payload: JwtPayload = { 
-      _id: user._id.toString(), 
+      _id: user.id, 
       username: user.username, 
-      roles: user.roles.map(role => role._id.toString())
+      roles: user.roles.map(role => role.id)
     };
 
     const accessTokenExpires = this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRES_IN') || '10s';
@@ -42,7 +41,7 @@ export class AuthService {
     const user = await this.validateUser(username, password);
     
     // Update last login time
-    await this.userService.updateLastLogin(user._id);
+    await this.userService.updateLastLogin(user.id);
     
     return this.generateAuthResponse(user);
   }

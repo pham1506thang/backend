@@ -4,8 +4,7 @@ import { JwtAuthGuard } from '../../common/guards/auth.guard';
 import { RoleGuard } from '../../common/guards/role.guard';
 import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO } from './user.dto';
 import { RolePermission } from '../../common/decorators/role-permission.decorator';
-import { Actions, Domains } from 'common/constants/permissions';
-import { Types } from 'mongoose';
+import { DOMAINS } from 'common/constants/permissions';
 import { CurrentUser } from 'common/decorators/current-user.decorator';
 import { JwtUser } from 'common/interfaces/jwt-user.interface';
 import { GrowthBookService } from 'modules/growthbook/growthbook.service';
@@ -13,25 +12,26 @@ import { ControllerFeatureGuard } from 'common/guards/controller-feature.guard';
 import { ControllerFeature } from 'common/decorators/controller-feature.decorator';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 
-@Controller(Domains.Users)
+@Controller(DOMAINS.USER.value)
 @UseGuards(ControllerFeatureGuard)
-@ControllerFeature(Domains.Users)
+@ControllerFeature(DOMAINS.USER.value)
 export class UserController {
-  constructor(private readonly userService: UserService, private readonly growthBookService: GrowthBookService) {}
+  constructor(private readonly userService: UserService, private readonly growthBookService: GrowthBookService) { }
+
+  @Get()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @RolePermission(DOMAINS.USER.value, DOMAINS.USER.actions.VIEW_ALL)
+  findPaginatedUsers(@Query() params: PaginationParamsDto) {
+    return this.userService.findPaginatedUsers(params);
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(Domains.Users, Actions.Create)
+  @RolePermission(DOMAINS.USER.value, DOMAINS.USER.actions.CREATE)
   createUser(@Body() createUserDto: CreateUserDTO) {
     return this.userService.createUser(createUserDto);
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(Domains.Users, Actions.Read)
-  getUsers(@Query() params: PaginationParamsDto) {
-    return this.userService.findAll(params);
-  }
 
   @Patch('change-password')
   @UseGuards(JwtAuthGuard)
@@ -45,13 +45,13 @@ export class UserController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(Domains.Users, Actions.Update)
+  @RolePermission(DOMAINS.USER.value, DOMAINS.USER.actions.EDIT_PROFILE)
   updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDTO,
   ) {
     return this.userService.updateUser(
-      new Types.ObjectId(id),
+      id,
       updateUserDto,
     );
   }

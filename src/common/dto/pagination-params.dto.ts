@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { SortField, FilterField } from 'common/interfaces/pagination.interface';
-import { Types } from 'mongoose';
 
 export class SortFieldDto implements SortField {
   @IsString()
@@ -30,20 +29,12 @@ export class FilterFieldDto implements FilterField {
   value: FilterField['value'];
 }
 
-function parseJsonArrayToDto<T>(dtoClass: new () => T, objectIdFields: string[] = []) {
+function parseJsonArrayToDto<T>(dtoClass: new () => T) {
   return ({ value }: { value: string }) => {
     try {
       const parsed = JSON.parse(value);
       if (!Array.isArray(parsed)) return [];
-      const converted = parsed.map((item: any) => {
-        objectIdFields.forEach((field) => {
-          if (item[field] && Types.ObjectId.isValid(item[field])) {
-            item[field] = new Types.ObjectId(item[field]);
-          }
-        });
-        return item;
-      });
-      return plainToInstance(dtoClass, converted);
+      return parsed.map((item: any) => plainToInstance(dtoClass, item));
     } catch {
       return [];
     }
@@ -67,7 +58,7 @@ export class PaginationParamsDto {
   sorts?: SortFieldDto[];
 
   @IsOptional()
-  @Transform(parseJsonArrayToDto(FilterFieldDto, ['roles']))
+  @Transform(parseJsonArrayToDto(FilterFieldDto))
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FilterFieldDto)

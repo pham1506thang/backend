@@ -1,83 +1,81 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { RoleRepository } from './role.repository';
+import { PermissionRepository } from './permission.repository';
 import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
 import _ from 'lodash';
 import { ActionType, DomainType } from 'common/constants/permissions';
+import { Permission } from './permission.entity';
 
 @Injectable()
 export class RoleService {
   constructor(
     private readonly roleRepository: RoleRepository,
-  ) {}
+    private readonly permissionRepository: PermissionRepository,
+  ) { }
 
-  async findById(id: Types.ObjectId) {
+  async findById(id: string) {
     return this.roleRepository.findById(id);
   }
 
-  async findByIds(ids: Types.ObjectId[]) {
-    return this.roleRepository.find({ _id: { $in: ids } });
+  async findByIds(ids: string[]) {
+    return this.roleRepository.findByIds(ids);
   }
 
   async hasPermission(
-    roleIds: Types.ObjectId[],
+    roleIds: string[],
     domain: DomainType,
     action: ActionType,
   ): Promise<boolean> {
-    // If no roles, deny access
     if (roleIds.length === 0) return false;
-
-    // Get all roles
     const roles = await this.findByIds(roleIds);
-    
-    // If any role is not found, deny access
     if (roles.length !== roleIds.length) return false;
-
-    // Check if any role is admin
-    if (roles.some(role => role.isAdmin)) return true;
-
-    // Check if any role has the specific permission
-    return roles.some(role =>
-      role.permissions.some(
-        permission =>
-          permission.domain === domain &&
-          permission.actions.some((_action) => _action === action)
-      )
+    if (roles.some(role => role.isAdmin || role.isSuperAdmin)) return true;
+    const permissions = roles.flatMap(role => role.permissions || []);
+    return permissions.some(
+      (perm) => perm.domain === domain && perm.action === action
     );
   }
 
   async create(dto: CreateRoleDTO) {
+    let permissions: Permission[] = [];
+    if (dto.permissions.length > 0) {
+      permissions = await this.permissionRepository.findByIds(dto.permissions);
+    }
     // Ensure isAdmin is false when creating through API
     return this.roleRepository.create({
       ...dto,
       isAdmin: false,
-      permissions: dto.permissions || []
+      permissions
     });
   }
 
   async update(id: string, dto: UpdateRoleDTO) {
-    const role = await this.roleRepository.findById(new Types.ObjectId(id));
+    const role = await this.roleRepository.findById(id);
     if (!role) {
       throw new NotFoundException('Role not found');
     }
-
-    // Ensure we can't modify isAdmin status through API
-    return this.roleRepository.updateById(
-      new Types.ObjectId(id),
+    let permissions: Permission[] = role.permissions;
+    if (dto.permissions && dto.permissions.length > 0) {
+      permissions = await this.permissionRepository.findByIds(dto.permissions);
+    }
+    return this.roleRepository.update(
+      id,
       {
         ...dto,
-        isAdmin: role.isAdmin, // Preserve existing isAdmin status
-        isProtected: role.isProtected // Preserve existing isProtected status
+        isAdmin: role.isAdmin,
+        isSuperAdmin: role.isSuperAdmin,
+        isProtected: role.isProtected,
+        permissions
       }
     );
   }
 
   async remove(id: string) {
-    const role = await this.roleRepository.findById(new Types.ObjectId(id));
+    const role = await this.roleRepository.findById(id);
     if (!role) {
       throw new NotFoundException('Role not found');
     }
 
-    return this.roleRepository.softDeleteById(new Types.ObjectId(id));
+    return this.roleRepository.softDeleteById(id);
   }
 }

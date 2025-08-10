@@ -1,6 +1,5 @@
 import { IsString, IsNotEmpty, IsArray, IsOptional, IsEmail } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { Types } from 'mongoose';
 import { OmitType } from '@nestjs/mapped-types';
 
 export class CreateUserDTO {
@@ -24,11 +23,10 @@ export class CreateUserDTO {
 
   @IsArray()
   @IsOptional()
-  @Transform(({ value }) => value ? value.map((id: string) => new Types.ObjectId(id)) : [])
-  roles?: Types.ObjectId[];
+  roles?: string[];
 }
 
-export class UpdateUserDTO extends OmitType(CreateUserDTO, ['password', 'username'] as const) {}
+export class UpdateUserDTO extends OmitType(CreateUserDTO, ['password', 'username', 'roles'] as const) {}
 
 export class ChangePasswordDTO {
   @IsString()
@@ -38,4 +36,10 @@ export class ChangePasswordDTO {
   @IsString()
   @IsNotEmpty()
   newPassword: string;
-} 
+}
+
+export class UpdateUserRolesDTO {
+  @IsArray()
+  @IsOptional()
+  roles?: string[];
+}

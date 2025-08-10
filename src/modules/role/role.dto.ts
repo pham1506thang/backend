@@ -7,18 +7,6 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { ActionType, DomainType } from 'common/constants/permissions';
-
-export class PermissionDto {
-  @IsString()
-  domain: DomainType;
-
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  actions: ActionType[];
-}
-
 export class CreateRoleDTO {
   @IsString()
   @IsNotEmpty()
@@ -33,8 +21,8 @@ export class CreateRoleDTO {
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => PermissionDto)
-  permissions: PermissionDto[];
+  @Type(() => String)
+  permissions: string[];
 }
 
 export class UpdateRoleDTO extends PartialType(CreateRoleDTO) {}

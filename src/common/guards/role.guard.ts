@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'common/interfaces/jwt-user.interface';
 import { RoleService } from 'modules/role/role.service';
@@ -23,8 +22,8 @@ export class RoleGuard implements CanActivate {
     // If no permission requirements are set, allow access
     if (!domain || !action) return true;
 
-    // Convert roles to ObjectIds if they exist
-    const roleIds = user.roles?.map(roleId => new Types.ObjectId(roleId)) || [];
+    // roleIds là mảng string
+    const roleIds = user.roles || [];
     
     return await this.roleService.hasPermission(
       roleIds,

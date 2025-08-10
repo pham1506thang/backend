@@ -1,7 +1,21 @@
-import { Types } from "mongoose";
+export type FilterOperator = 
+  | 'eq' 
+  | 'neq' 
+  | 'contains' 
+  | 'not_contains'
+  | 'starts_with'
+  | 'ends_with'
+  | 'in' 
+  | 'nin' 
+  | 'gt' 
+  | 'gte' 
+  | 'lt' 
+  | 'lte'
+  | 'is_null'
+  | 'is_not_null'
+  | 'between';
 
-export type FilterOperator = 'eq' | 'neq' | 'contains' | 'in' | 'nin' | 'gt' | 'gte' | 'lt' | 'lte';
-type FilterValue = Types.ObjectId | string | number | boolean | Array<Types.ObjectId | string | number>;
+type FilterValue = string | number | boolean | Date | Array<string | number | Date> | null;
 
 export interface FilterField {
   field: string;
