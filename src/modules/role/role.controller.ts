@@ -8,27 +8,27 @@ import { JwtAuthGuard } from 'common/guards/auth.guard';
 import { ProtectedRoleGuard } from '../../common/guards/protected-role.guard';
 import { AdminRoleGuard } from '../../common/guards/admin-role.guard';
 
-@Controller(DOMAINS.ROLE.value)
+@Controller(DOMAINS.ROLES.value)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard, AdminRoleGuard)
-  @RolePermission(DOMAINS.ROLE.value, 'create')
+  @RolePermission(DOMAINS.ROLES.value, 'create')
   create(@Body() body: CreateRoleDTO) {
     return this.roleService.create(body);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RoleGuard, AdminRoleGuard, ProtectedRoleGuard)
-  @RolePermission(DOMAINS.ROLE.value, 'update')
+  @RolePermission(DOMAINS.ROLES.value, 'update')
   update(@Param('id') id: string, @Body() body: UpdateRoleDTO) {
     return this.roleService.update(id, body);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RoleGuard, ProtectedRoleGuard)
-  @RolePermission(DOMAINS.ROLE.value, 'delete')
+  @RolePermission(DOMAINS.ROLES.value, 'delete')
   remove(@Param('id') id: string) {
     return this.roleService.remove(id);
   }

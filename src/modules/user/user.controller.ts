@@ -12,22 +12,22 @@ import { ControllerFeatureGuard } from 'common/guards/controller-feature.guard';
 import { ControllerFeature } from 'common/decorators/controller-feature.decorator';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 
-@Controller(DOMAINS.USER.value)
+@Controller(DOMAINS.USERS.value)
 @UseGuards(ControllerFeatureGuard)
-@ControllerFeature(DOMAINS.USER.value)
+@ControllerFeature(DOMAINS.USERS.value)
 export class UserController {
   constructor(private readonly userService: UserService, private readonly growthBookService: GrowthBookService) { }
 
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(DOMAINS.USER.value, DOMAINS.USER.actions.VIEW_ALL)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.VIEW_ALL)
   findPaginatedUsers(@Query() params: PaginationParamsDto) {
     return this.userService.findPaginatedUsers(params);
   }
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(DOMAINS.USER.value, DOMAINS.USER.actions.CREATE)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.CREATE)
   createUser(@Body() createUserDto: CreateUserDTO) {
     return this.userService.createUser(createUserDto);
   }
@@ -45,7 +45,7 @@ export class UserController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @RolePermission(DOMAINS.USER.value, DOMAINS.USER.actions.EDIT_PROFILE)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.EDIT_PROFILE)
   updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDTO,

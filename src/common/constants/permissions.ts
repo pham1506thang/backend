@@ -4,8 +4,8 @@ export type DomainType = string;
 export type ActionType = string;
 
 export const DOMAINS = {
-  ARTICLE: {
-    value: 'article',
+  ARTICLES: {
+    value: 'articles',
     actions: {
       VIEW: 'view',
       CREATE: 'create',
@@ -23,8 +23,8 @@ export const DOMAINS = {
       SCHEDULE: 'schedule'
     }
   },
-  COMMENT: {
-    value: 'comment',
+  COMMENTS: {
+    value: 'comments',
     actions: {
       VIEW: 'view',
       CREATE: 'create',
@@ -37,8 +37,8 @@ export const DOMAINS = {
       LIKE: 'like'
     }
   },
-  USER: {
-    value: 'user',
+  USERS: {
+    value: 'users',
     actions: {
       VIEW_ALL: 'view_all',
       VIEW_PROFILE: 'view_profile',
@@ -51,8 +51,8 @@ export const DOMAINS = {
       VERIFY: 'verify'
     }
   },
-  ROLE: {
-    value: 'role',
+  ROLES: {
+    value: 'roles',
     actions: {
       VIEW: 'view',
       CREATE: 'create',
@@ -61,8 +61,8 @@ export const DOMAINS = {
       ASSIGN_PERMISSION: 'assign_permission'
     }
   },
-  CATEGORY: {
-    value: 'category',
+  CATEGORIES: {
+    value: 'categories',
     actions: {
       VIEW: 'view',
       CREATE: 'create',
@@ -71,8 +71,8 @@ export const DOMAINS = {
       MANAGE: 'manage'
     }
   },
-  TAG: {
-    value: 'tag',
+  TAGS: {
+    value: 'tags',
     actions: {
       VIEW: 'view',
       CREATE: 'create',
@@ -81,8 +81,8 @@ export const DOMAINS = {
       MANAGE: 'manage'
     }
   },
-  MEDIA: {
-    value: 'media',
+  MEDIAS: {
+    value: 'medias',
     actions: {
       VIEW: 'view',
       UPLOAD: 'upload',
@@ -102,8 +102,8 @@ export const DOMAINS = {
       PAYMENT: 'payment'
     }
   },
-  REPORT: {
-    value: 'report',
+  REPORTS: {
+    value: 'reports',
     actions: {
       VIEW_TRAFFIC: 'view_traffic',
       VIEW_CONTENT: 'view_content'
