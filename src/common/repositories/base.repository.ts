@@ -3,6 +3,7 @@ import {
   FindOptionsWhere,
   In,
   DeepPartial,
+  SelectQueryBuilder,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { IBaseEntity } from 'common/interfaces/base-entity.interface';
@@ -38,6 +39,10 @@ export class BaseRepository<T extends IBaseEntity> {
     return this.repository.save(entity);
   }
 
+  createQueryBuilder(): SelectQueryBuilder<T> {
+    return this.repository.createQueryBuilder(this.repository.metadata.tableName)
+  }
+
   async save(entity: DeepPartial<T>): Promise<T> {
     return this.repository.save(entity);
   }
@@ -55,9 +60,10 @@ export class BaseRepository<T extends IBaseEntity> {
   }
 
   async findWithPagination(
-    params: PaginationParamsDto & { searchFields?: string[] }
+    params: PaginationParamsDto & { searchFields?: string[] },
+    queryBuilder?: SelectQueryBuilder<T>
   ): Promise<PaginationResult<T>> {
-    const qb = this.repository.createQueryBuilder(this.repository.metadata.tableName);
+    const qb = queryBuilder ?? this.createQueryBuilder();
 
     if (params.filters?.length) {
       applyFilters(qb, params.filters);

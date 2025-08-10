@@ -1,23 +1,36 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from './user.entity';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { RoleRepository } from '../role/role.repository';
 import { SALT_ROUNDS } from 'common/constants/config';
-import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, UpdateUserRolesDTO } from './user.dto';
+import {
+  CreateUserDTO,
+  UpdateUserDTO,
+  ChangePasswordDTO,
+  UpdateUserRolesDTO,
+} from './user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepository,
     private roleRepository: RoleRepository,
-  ) { }
+  ) {}
 
   async findPaginatedUsers(params: PaginationParamsDto) {
-    return this.userRepository.findWithPagination(params)
+    return this.userRepository.findWithPagination({
+      ...params,
+      searchFields: ['username', 'name', 'email'],
+    });
   }
-  
+
   async findByUsername(username: string) {
     return this.userRepository.findByUsername(username);
   }
@@ -55,23 +68,25 @@ export class UserService {
     return this.userRepository.findById(id);
   }
 
-  async updateUserRoles(id: string, dto: UpdateUserRolesDTO): Promise<User | null> {
+  async updateUserRoles(
+    id: string,
+    dto: UpdateUserRolesDTO,
+  ): Promise<User | null> {
     if (!dto.roles || dto.roles.length === 0) {
       await this.userRepository.update(id, { roles: [] });
-      return this.userRepository.findById(id)
+      return this.userRepository.findById(id);
     }
     const foundRoles = await this.roleRepository.findByIds(dto.roles);
     if (foundRoles.length !== dto.roles.length) {
       throw new BadRequestException('Một hoặc nhiều role không hợp lệ');
     }
     await this.userRepository.update(id, { roles: foundRoles });
-    return this.userRepository.findById(id)
+    return this.userRepository.findById(id);
   }
 
   async updateLastLogin(id: string) {
     return this.userRepository.updateLastLogin(id);
   }
-
 
   async changePassword(userId: string, dto: ChangePasswordDTO) {
     const user = await this.userRepository.findById(userId);
@@ -80,7 +95,10 @@ export class UserService {
     }
 
     // Verify current password
-    const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new BadRequestException('Current password is incorrect');
     }
@@ -90,7 +108,7 @@ export class UserService {
 
     // Update password
     await this.userRepository.update(userId, {
-      password: hashedPassword
+      password: hashedPassword,
     });
   }
 }
