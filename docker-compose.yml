@@ -20,7 +20,7 @@ services:
     ports:
       - '${PORT}:${PORT}'
     volumes:
-      - /usr/src/app/node_modules
+      - /app/node_modules
     command: npm run start:dev
 
 volumes:
