@@ -1,11 +1,11 @@
 export interface JwtPayload {
-  _id: string;
+  id: string;
   username: string;
   roles: string[];
 }
 
 export interface JwtUser {
-  _id: string;
+  id: string;
   username: string;
   roles: string[];
 }

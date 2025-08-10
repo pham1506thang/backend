@@ -92,7 +92,7 @@ export function applySearch<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, 
   if (search && searchFields.length) {
     const conditions = searchFields.map(field => {
       // Handle numeric fields differently
-      if (field.endsWith('_id') || field.includes('number') || field.includes('amount')) {
+      if (field.endsWith('id') || field.includes('number') || field.includes('amount')) {
         if (!isNaN(Number(search))) {
           return `CAST(${qb.alias}.${field} AS TEXT) = :exactSearch`;
         }

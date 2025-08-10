@@ -24,7 +24,7 @@ export class AuthService {
 
   private generateAuthResponse(user: User) {
     const payload: JwtPayload = { 
-      _id: user.id, 
+      id: user.id, 
       username: user.username, 
       roles: user.roles.map(role => role.id)
     };
@@ -54,7 +54,7 @@ export class AuthService {
       }) as JwtPayload;
       
       // Get user to verify it exists
-      const user = await this.userService.findByUsername(payload.username);
+      const user = await this.userService.findByUsername(payload.id);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }

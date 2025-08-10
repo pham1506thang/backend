@@ -39,7 +39,7 @@ export class UserController {
     @CurrentUser() user: JwtUser,
     @Body() changePasswordDto: ChangePasswordDTO
   ) {
-    await this.userService.changePassword(user._id, changePasswordDto);
+    await this.userService.changePassword(user.id, changePasswordDto);
     return { message: 'Password changed successfully' };
   }
 
