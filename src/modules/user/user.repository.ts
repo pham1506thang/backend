@@ -17,11 +17,18 @@ export class UserRepository extends BaseRepository<User> {
   async findByUsername(username: string, includeDeleted = false): Promise<User | null> {
     return this.userRepo.findOne({
       where: { username, isDeleted: includeDeleted ? undefined : false },
+      relations: ['roles'],
     });
   }
 
-  async updateLastLoginOnly(id: string): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+  }
+
+  async updateLastLogin(id: string): Promise<void> {
     await this.userRepo.update(id, { lastLogin: new Date() });
-    return this.userRepo.findOne({ where: { id } });
   }
 }

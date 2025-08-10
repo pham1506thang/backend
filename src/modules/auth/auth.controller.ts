@@ -66,12 +66,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getCurrentUser(@CurrentUser() user: JwtUser) {
-    const userWithRoles = await this.userService.findByUsername(user.username);
-    if (!userWithRoles) {
+    const entityUser = await this.userService.findByUsername(user.username);
+    if (!entityUser) {
       throw new UnauthorizedException('User not found');
     }
-    // Loại bỏ password khỏi entity trả về
-    const { password, ...plainUser } = userWithRoles;
+    const { password, ...plainUser } = entityUser;
     return plainUser;
   }
 }

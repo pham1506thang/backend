@@ -69,7 +69,7 @@ export class UserService {
   }
 
   async updateLastLogin(id: string) {
-    return this.userRepository.updateLastLoginOnly(id);
+    return this.userRepository.updateLastLogin(id);
   }
 
 
