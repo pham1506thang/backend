@@ -26,7 +26,11 @@ export class CreateUserDTO {
   roles?: string[];
 }
 
-export class UpdateUserDTO extends OmitType(CreateUserDTO, ['password', 'username', 'roles'] as const) {}
+export class UpdateUserDTO extends OmitType(CreateUserDTO, ['password', 'username', 'roles'] as const) {
+  @IsString()
+  @IsOptional()
+  status?: string;
+}
 
 export class ChangePasswordDTO {
   @IsString()

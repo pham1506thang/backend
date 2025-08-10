@@ -16,6 +16,7 @@ import {
   ChangePasswordDTO,
   UpdateUserRolesDTO,
 } from './user.dto';
+import { USER_STATUS } from './user-status.constant';
 
 @Injectable()
 export class UserService {
@@ -46,6 +47,7 @@ export class UserService {
       const userData: Partial<User> = {
         ...rest,
         password: hashedPassword,
+        status: USER_STATUS.PENDING,
       };
       if (roles && roles.length > 0) {
         const foundRoles = await this.roleRepository.findByIds(roles);

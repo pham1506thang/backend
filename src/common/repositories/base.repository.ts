@@ -74,7 +74,7 @@ export class BaseRepository<T extends IBaseEntity> {
     }
 
     if (params.sorts?.length) {
-      applySorts(qb, params.sorts as any);
+      applySorts(qb, params.sorts);
     }
 
     return buildPaginationResponse(qb, params);

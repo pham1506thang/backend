@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { IBaseEntity } from 'common/interfaces/base-entity.interface';
+import { USER_STATUS } from './user-status.constant';
 
 @Entity('users')
 export class User implements IBaseEntity {
@@ -18,6 +19,13 @@ export class User implements IBaseEntity {
 
   @Column({ nullable: true })
   email?: string;
+
+  @Column({ 
+    type: 'enum', 
+    enum: USER_STATUS, 
+    default: USER_STATUS.PENDING 
+  })
+  status: string;
 
   @Column({ type: 'timestamp', nullable: true })
   lastLogin?: Date;
