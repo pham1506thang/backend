@@ -29,6 +29,13 @@ export class UserRepository extends BaseRepository<User> {
     });
   }
 
+  async findByIdWithPermissions(id: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { id },
+      relations: ['roles', 'roles.permissions'],
+    });
+  }
+
   async findWithPagination(
     params: PaginationParamsDto & { searchFields?: string[] }
   ): Promise<PaginationResult<User>> {

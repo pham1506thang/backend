@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Res, UnauthorizedException, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  UnauthorizedException,
+  Get,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
@@ -7,6 +16,7 @@ import { JwtUser } from 'common/interfaces/jwt-user.interface';
 import { UserService } from '../user/user.service';
 import { CookieOptions } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Permission } from 'modules/role/permission.entity';
 
 @Controller('auths')
 export class AuthController {
@@ -18,8 +28,12 @@ export class AuthController {
 
   private getRefreshTokenCookieOptions(): CookieOptions {
     const defaultExpires = 20; // 20 seconds in milliseconds
-    const configExpires = this.configService.get<string>('COOKIE_REFRESH_TOKEN_EXPIRES_IN');
-    const refreshTokenExpires = configExpires ? Number(configExpires) * 1000 : defaultExpires;
+    const configExpires = this.configService.get<string>(
+      'COOKIE_REFRESH_TOKEN_EXPIRES_IN',
+    );
+    const refreshTokenExpires = configExpires
+      ? Number(configExpires) * 1000
+      : defaultExpires;
     return {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -28,15 +42,50 @@ export class AuthController {
     };
   }
 
+  @Get('auth')
+  @UseGuards(JwtAuthGuard)
+  async getAuth(@CurrentUser() user: JwtUser) {
+    const entityUser = await this.userService.findByIdWithPermissions(user.id);
+    if (!entityUser) {
+      throw new UnauthorizedException('Không tìm thấy người dùng');
+    }
+    const { password, ...plainUser } = entityUser;
+    const mappedPermissions: Map<string, Permission> = new Map();
+    const plainUserWithSummaryRole = {
+      ...plainUser,
+      roles: plainUser.roles.map((role) => {
+        role.permissions.forEach((permission) => {
+          mappedPermissions.set(permission.id, permission);
+        });
+        return {
+          id: role.id,
+          code: role.code,
+          label: role.label,
+          isAdmin: role.isAdmin,
+          isSuperAdmin: role.isSuperAdmin,
+          isProtected: role.isProtected,
+        };
+      }),
+    };
+    return {
+      me: plainUserWithSummaryRole,
+      permissions: Array.from(mappedPermissions.values()),
+    };
+  }
+
   @Post('login')
   async login(
     @Body() body: { username: string; password: string },
-    @Res({ passthrough: true }) response: Response
+    @Res({ passthrough: true }) response: Response,
   ) {
     const result = await this.authService.login(body.username, body.password);
-    
+
     // Set refresh token in httpOnly cookie
-    response.cookie('refreshToken', result.refreshToken, this.getRefreshTokenCookieOptions());
+    response.cookie(
+      'refreshToken',
+      result.refreshToken,
+      this.getRefreshTokenCookieOptions(),
+    );
 
     // Don't send refresh token in response body
     const { refreshToken, ...responseData } = result;
@@ -46,7 +95,7 @@ export class AuthController {
   @Post('refresh')
   async refreshToken(
     @Req() request: Request,
-    @Res({ passthrough: true }) response: Response
+    @Res({ passthrough: true }) response: Response,
   ) {
     const refreshToken = request.cookies['refreshToken'];
     if (!refreshToken) {
@@ -54,23 +103,16 @@ export class AuthController {
     }
 
     const result = await this.authService.refreshToken(refreshToken);
-    
+
     // Set new refresh token in cookie
-    response.cookie('refreshToken', result.refreshToken, this.getRefreshTokenCookieOptions());
+    response.cookie(
+      'refreshToken',
+      result.refreshToken,
+      this.getRefreshTokenCookieOptions(),
+    );
 
     // Don't send refresh token in response body
-    const { refreshToken: newRefreshToken, ...responseData } = result;
+    const { refreshToken: _, ...responseData } = result;
     return responseData;
-  }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async getCurrentUser(@CurrentUser() user: JwtUser) {
-    const entityUser = await this.userService.findById(user.id);
-    if (!entityUser) {
-      throw new UnauthorizedException('User not found');
-    }
-    const { password, ...plainUser } = entityUser;
-    return plainUser;
   }
 }

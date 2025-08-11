@@ -40,6 +40,10 @@ export class UserService {
     return this.userRepository.findById(id);
   }
 
+  async findByIdWithPermissions(id: string) {
+    return this.userRepository.findByIdWithPermissions(id);
+  }
+
   async createUser(dto: CreateUserDTO): Promise<User> {
     try {
       const hashedPassword = bcrypt.hashSync(dto.password, SALT_ROUNDS);
