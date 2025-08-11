@@ -8,6 +8,7 @@ import { DEFAULT_ROLES } from 'common/constants/default-roles';
 import { DOMAINS } from 'common/constants/permissions';
 import { Permission } from 'modules/role/permission.entity';
 import { Role } from 'modules/role/role.entity';
+import { USER_STATUS } from 'modules/user/user-status.constant';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -65,8 +66,10 @@ async function bootstrap() {
     const superAdminUser = await userService.createUser({
       username: configService.getOrThrow<string>('ADMIN_USERNAME'),
       password: configService.getOrThrow<string>('ADMIN_PASSWORD'),
-      roles: [superAdminRole.id]
+      roles: [superAdminRole.id],
     });
+
+    await userService.updateUser(superAdminUser.id, { status: USER_STATUS.ACTIVE })
 
     console.log('\u2705 Super Admin role and user created successfully');
     console.log('Super Admin Role ID:', superAdminRole.id);

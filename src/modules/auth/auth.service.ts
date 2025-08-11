@@ -54,7 +54,7 @@ export class AuthService {
       }) as JwtPayload;
       
       // Get user to verify it exists
-      const user = await this.userService.findByUsername(payload.id);
+      const user = await this.userService.findById(payload.id);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }

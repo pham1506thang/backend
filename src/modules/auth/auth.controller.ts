@@ -66,7 +66,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getCurrentUser(@CurrentUser() user: JwtUser) {
-    const entityUser = await this.userService.findByUsername(user.username);
+    const entityUser = await this.userService.findById(user.id);
     if (!entityUser) {
       throw new UnauthorizedException('User not found');
     }
