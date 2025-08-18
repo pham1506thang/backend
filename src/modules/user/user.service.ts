@@ -14,7 +14,7 @@ import {
   CreateUserDTO,
   UpdateUserDTO,
   ChangePasswordDTO,
-  UpdateUserRolesDTO,
+  AssignUserRolesDTO,
 } from './user.dto';
 import { USER_STATUS } from './user-status.constant';
 
@@ -56,14 +56,24 @@ export class UserService {
       if (roles && roles.length > 0) {
         const foundRoles = await this.roleRepository.findByIds(roles);
         if (foundRoles.length !== roles.length) {
-          throw new BadRequestException('Một hoặc nhiều role không hợp lệ');
+          const invalidRoles = roles.filter(
+            (roleId) =>
+              !foundRoles.some((foundRole) => foundRole.id === roleId),
+          );
+          throw new BadRequestException({
+            message: 'Một hoặc nhiều role không hợp lệ',
+            details: { invalidRoles },
+          });
         }
         userData.roles = foundRoles;
       }
       return await this.userRepository.create(userData);
     } catch (e) {
       if (e.code === '23505') {
-        throw new ConflictException('Username đã tồn tại');
+        throw new ConflictException({
+          message: 'Username already exists',
+          details: { username: ['Username already exists'] },
+        });
       }
       throw e;
     }
@@ -76,18 +86,30 @@ export class UserService {
 
   async updateUserRoles(
     id: string,
-    dto: UpdateUserRolesDTO,
+    dto: AssignUserRolesDTO,
   ): Promise<User | null> {
+    // Find the user first
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new UnauthorizedException('Không tìm thấy người dùng');
+    }
+
     if (!dto.roles || dto.roles.length === 0) {
-      await this.userRepository.update(id, { roles: [] });
-      return this.userRepository.findById(id);
+      user.roles = [];
+    } else {
+      const foundRoles = await this.roleRepository.findByIds(dto.roles);
+      if (foundRoles.length !== dto.roles.length) {
+        throw new BadRequestException({
+          message: 'Một hoặc nhiều role không hợp lệ',
+          details: { roles: ['Một hoặc nhiều role không hợp lệ'] },
+        });
+      }
+      user.roles = foundRoles;
     }
-    const foundRoles = await this.roleRepository.findByIds(dto.roles);
-    if (foundRoles.length !== dto.roles.length) {
-      throw new BadRequestException('Một hoặc nhiều role không hợp lệ');
-    }
-    await this.userRepository.update(id, { roles: foundRoles });
-    return this.userRepository.findById(id);
+    
+    // Save the user with updated roles
+    await this.userRepository.save(user);
+    return user;
   }
 
   async updateLastLogin(id: string) {
@@ -97,7 +119,7 @@ export class UserService {
   async changePassword(userId: string, dto: ChangePasswordDTO) {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Không tìm thấy người dùng');
     }
 
     // Verify current password
@@ -106,7 +128,10 @@ export class UserService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException({
+        message: 'Mật khẩu hiện tại không đúng',
+        details: { currentPassword: ['Mật khẩu hiện tại không đúng'] },
+      });
     }
 
     // Hash new password

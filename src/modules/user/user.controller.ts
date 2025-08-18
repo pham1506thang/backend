@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, UseGuards, Patch, Param, Put, Query } from
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
 import { RoleGuard } from '../../common/guards/role.guard';
-import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AssignUserRolesDTO } from './user.dto';
 import { RolePermission } from '../../common/decorators/role-permission.decorator';
 import { DOMAINS } from 'common/constants/permissions';
 import { CurrentUser } from 'common/decorators/current-user.decorator';
@@ -25,6 +25,18 @@ export class UserController {
     return this.userService.findPaginatedUsers(params);
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.VIEW_PROFILE)
+  async getUserById(@Param('id') id: string) {
+    const user = await this.userService.findById(id);
+    if (user) {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+    return user;
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.CREATE)
@@ -33,26 +45,39 @@ export class UserController {
   }
 
 
-  @Patch('change-password')
+  @Patch(':id/change-password')
   @UseGuards(JwtAuthGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.CHANGE_PASSWORD)
   async changePassword(
-    @CurrentUser() user: JwtUser,
+    @Param('id') id: string,
     @Body() changePasswordDto: ChangePasswordDTO
   ) {
-    await this.userService.changePassword(user.id, changePasswordDto);
+    await this.userService.changePassword(id, changePasswordDto);
     return { message: 'Password changed successfully' };
+  }
+
+  @Patch(':id/assign-roles')
+  @UseGuards(JwtAuthGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.ASSIGN_ROLE)
+  async assignUserRoles(
+    @Param('id') id: string,
+    @Body() assignUserRolesDto: AssignUserRolesDTO
+  ) {
+    await this.userService.updateUserRoles(id, assignUserRolesDto);
+    return { message: 'Assign roles successfully' };
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.EDIT_PROFILE)
-  updateUser(
+  async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDTO,
   ) {
-    return this.userService.updateUser(
+    await this.userService.updateUser(
       id,
       updateUserDto,
     );
+    return { message: 'Update user successfully' };
   }
 }

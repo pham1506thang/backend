@@ -42,7 +42,7 @@ export class ChangePasswordDTO {
   newPassword: string;
 }
 
-export class UpdateUserRolesDTO {
+export class AssignUserRolesDTO {
   @IsArray()
   @IsOptional()
   roles?: string[];

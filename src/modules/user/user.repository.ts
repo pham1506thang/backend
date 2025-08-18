@@ -40,9 +40,31 @@ export class UserRepository extends BaseRepository<User> {
     params: PaginationParamsDto & { searchFields?: string[] }
   ): Promise<PaginationResult<User>> {
     const qb = this.createQueryBuilder();
-    
+
     // Add relations
     qb.leftJoinAndSelect(`${qb.alias}.roles`, 'roles');
+
+    // The 'roles' filter is a special case because it involves a many-to-many relationship
+    // which is handled by an intermediate table. The generic `applyFilters` utility cannot
+    // handle this, so we intercept the filter here and apply the condition directly to the
+    // joined 'roles' table.
+    if (params.filters) {
+      const roleFilterIndex = params.filters.findIndex(f => f.field === 'roles');
+
+      if (roleFilterIndex > -1) {
+        const roleFilter = params.filters[roleFilterIndex];
+        const roleIds = Array.isArray(roleFilter.value) ? roleFilter.value : [roleFilter.value];
+
+        if (roleIds.length > 0) {
+          // Apply a WHERE condition on the ID of the joined 'roles' table alias.
+          qb.andWhere('roles.id IN (:...roleIds)', { roleIds });
+        }
+
+        // Remove the 'roles' filter from the array so the generic handler doesn't
+        // try to process it again and cause an error.
+        params.filters.splice(roleFilterIndex, 1);
+      }
+    }
 
     return super.findWithPagination(params, qb);
   }

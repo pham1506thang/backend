@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Patch, Param, Delete } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
 import { DOMAINS } from 'common/constants/permissions';
@@ -11,6 +11,12 @@ import { AdminRoleGuard } from '../../common/guards/admin-role.guard';
 @Controller(DOMAINS.ROLES.value)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
+
+  @Get('summary')
+  @UseGuards(JwtAuthGuard)
+  findAllSummary() {
+    return this.roleService.findAllSummary();
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard, AdminRoleGuard)

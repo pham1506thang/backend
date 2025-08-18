@@ -5,6 +5,7 @@ import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
 import _ from 'lodash';
 import { ActionType, DomainType } from 'common/constants/permissions';
 import { Permission } from './permission.entity';
+import { SummaryRole } from './role.interface';
 
 @Injectable()
 export class RoleService {
@@ -12,6 +13,18 @@ export class RoleService {
     private readonly roleRepository: RoleRepository,
     private readonly permissionRepository: PermissionRepository,
   ) { }
+
+  async findAllSummary(): Promise<SummaryRole[]> {
+    const roles = await this.roleRepository.findAll();
+    return roles.map(role => ({
+      id: role.id,
+      code: role.code,
+      label: role.label,
+      isAdmin: role.isAdmin,
+      isSuperAdmin: role.isSuperAdmin,
+      isProtected: role.isProtected
+    }));
+  }
 
   async findById(id: string) {
     return this.roleRepository.findById(id);

@@ -46,6 +46,7 @@ export const DOMAINS = {
       CREATE: 'create',
       DELETE: 'delete',
       BLOCK: 'block',
+      CHANGE_PASSWORD: 'change_password',
       RESET_PASSWORD: 'reset_password',
       VERIFY: 'verify'
     }
@@ -54,6 +55,7 @@ export const DOMAINS = {
     value: 'roles',
     actions: {
       VIEW: 'view',
+      VIEW_SUMMARY: 'view_summary',
       CREATE: 'create',
       EDIT: 'edit',
       DELETE: 'delete',
