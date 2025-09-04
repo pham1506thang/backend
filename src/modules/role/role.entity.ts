@@ -13,6 +13,9 @@ export class Role implements IBaseEntity {
   @Column()
   label: string;
 
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
   @Column({ default: false })
   isAdmin: boolean;
 

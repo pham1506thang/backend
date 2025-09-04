@@ -7,6 +7,8 @@ import { RoleRepository } from './role.repository';
 import { ConfigService } from '@nestjs/config';
 import { Permission } from './permission.entity';
 import { PermissionRepository } from './permission.repository';
+import { PermissionController } from './permission.controller';
+import { PermissionService } from './permission.service';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { PermissionRepository } from './permission.repository';
     RoleRepository,
     PermissionRepository,
     ConfigService,
+    PermissionService,
   ],
-  controllers: [RoleController],
+  controllers: [RoleController, PermissionController],
   exports: [RoleService, RoleRepository], // Export RoleRepository for use in other modules
 })
 export class RoleModule {}

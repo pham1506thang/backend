@@ -4,6 +4,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -17,6 +18,11 @@ export class CreateRoleDTO {
   @IsNotEmpty()
   @Type(() => String)
   code: string;
+
+  @IsString()
+  @IsOptional()
+  @Type(() => String)
+  description?: string;
 
   @IsArray()
   @ArrayNotEmpty()

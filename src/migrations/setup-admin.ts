@@ -50,6 +50,7 @@ async function bootstrap() {
       const role = await roleRepository.create({
         code: roleDef.code,
         label: roleDef.label,
+        description: roleDef.description,
         isSuperAdmin,
         isAdmin,
         isProtected,

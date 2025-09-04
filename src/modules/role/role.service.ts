@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { ActionType, DomainType } from 'common/constants/permissions';
 import { Permission } from './permission.entity';
 import { SummaryRole } from './role.interface';
+import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 
 @Injectable()
 export class RoleService {
@@ -14,12 +15,20 @@ export class RoleService {
     private readonly permissionRepository: PermissionRepository,
   ) { }
 
+  async findPaginatedRoles(params: PaginationParamsDto) {
+    return this.roleRepository.findWithPagination({
+      ...params,
+      searchFields: ['code', 'label'],
+    });
+  }
+
   async findAllSummary(): Promise<SummaryRole[]> {
     const roles = await this.roleRepository.findAll();
     return roles.map(role => ({
       id: role.id,
       code: role.code,
       label: role.label,
+      description: role.description,
       isAdmin: role.isAdmin,
       isSuperAdmin: role.isSuperAdmin,
       isProtected: role.isProtected

@@ -4,6 +4,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'reader',
     label: 'Độc giả',
+    description: 'Người dùng có thể đọc bài viết, tạo bình luận và quản lý thông tin cá nhân',
     permissions: [
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.VIEW },
       { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.CREATE },
@@ -15,6 +16,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'reporter',
     label: 'Phóng viên',
+    description: 'Có thể tạo, chỉnh sửa và xóa bài viết của mình, quản lý media và bình luận',
     permissions: [
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.VIEW },
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.CREATE },
@@ -32,6 +34,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'editor',
     label: 'Biên tập viên',
+    description: 'Có toàn quyền quản lý nội dung, bao gồm xuất bản, kiểm duyệt và quản lý tất cả bài viết',
     permissions: [
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.VIEW },
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.CREATE },
@@ -77,6 +80,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'super_admin',
     label: 'Super Admin',
+    description: 'Có toàn quyền truy cập hệ thống, bao gồm tất cả quyền admin và quản lý cấu hình hệ thống',
     isAdmin: true,
     isSuperAdmin: true,
     permissions: [],
@@ -84,12 +88,14 @@ export const DEFAULT_ROLES = [
   {
     code: 'admin',
     label: 'Admin',
+    description: 'Có quyền quản trị hệ thống với các chức năng admin cơ bản',
     isAdmin: true,
     permissions: [],
   },
   {
     code: 'user_manager',
     label: 'Quản lý người dùng',
+    description: 'Chuyên quản lý người dùng, bao gồm tạo, xóa, khóa tài khoản và phân quyền',
     permissions: [
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
@@ -106,6 +112,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'role_manager',
     label: 'Quản lý vai trò và phân quyền',
+    description: 'Chuyên quản lý vai trò và phân quyền trong hệ thống',
     permissions: [
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.VIEW },
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.CREATE },
@@ -117,6 +124,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'support_staff',
     label: 'Nhân viên hỗ trợ',
+    description: 'Hỗ trợ người dùng với quyền xem thông tin và reset mật khẩu',
     permissions: [
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
@@ -126,6 +134,7 @@ export const DEFAULT_ROLES = [
   {
     code: 'auditor',
     label: 'Kiểm toán viên',
+    description: 'Có quyền xem thông tin người dùng và vai trò để thực hiện kiểm toán',
     permissions: [
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.VIEW },
