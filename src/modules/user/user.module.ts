@@ -7,11 +7,7 @@ import { RoleModule } from '../role/role.module';
 import { UserRepository } from './user.repository';
 import { GrowthBookModule } from 'modules/growthbook/growthbook.module';
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    RoleModule,
-    GrowthBookModule
-  ],
+  imports: [TypeOrmModule.forFeature([User]), RoleModule, GrowthBookModule],
   controllers: [UserController],
   providers: [UserService, UserRepository],
   exports: [UserService],

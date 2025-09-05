@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -23,26 +27,29 @@ export class AuthService {
   }
 
   private generateAuthResponse(user: User) {
-    const payload: JwtPayload = { 
-      id: user.id, 
-      username: user.username, 
-      roles: user.roles.map(role => role.id)
+    const payload: JwtPayload = {
+      id: user.id,
+      username: user.username,
+      roles: user.roles.map((role) => role.id),
     };
 
-    const accessTokenExpires = this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRES_IN') || '10s';
-    
+    const accessTokenExpires =
+      this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRES_IN') || '10s';
+
     return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: accessTokenExpires }),
+      accessToken: this.jwtService.sign(payload, {
+        expiresIn: accessTokenExpires,
+      }),
       refreshToken: this.jwtService.sign(payload),
     };
   }
 
   async login(username: string, password: string) {
     const user = await this.validateUser(username, password);
-    
+
     // Update last login time
     await this.userService.updateLastLogin(user.id);
-    
+
     return this.generateAuthResponse(user);
   }
 
@@ -50,9 +57,9 @@ export class AuthService {
     try {
       // Verify the refresh token but ignore expiration
       const payload = this.jwtService.verify(token, {
-        ignoreExpiration: true // Ignore JWT expiration since we're using cookie expiration
+        ignoreExpiration: true, // Ignore JWT expiration since we're using cookie expiration
       }) as JwtPayload;
-      
+
       // Get user to verify it exists
       const user = await this.userService.findById(payload.id);
       if (!user) {

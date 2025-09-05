@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsArray, IsOptional, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsArray,
+  IsOptional,
+  IsEmail,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import { OmitType } from '@nestjs/mapped-types';
 
@@ -13,12 +19,12 @@ export class CreateUserDTO {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   name?: string;
 
   @IsEmail()
   @IsOptional()
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   email?: string;
 
   @IsArray()
@@ -26,7 +32,11 @@ export class CreateUserDTO {
   roles?: string[];
 }
 
-export class UpdateUserDTO extends OmitType(CreateUserDTO, ['password', 'username', 'roles'] as const) {
+export class UpdateUserDTO extends OmitType(CreateUserDTO, [
+  'password',
+  'username',
+  'roles',
+] as const) {
   @IsString()
   @IsOptional()
   status?: string;

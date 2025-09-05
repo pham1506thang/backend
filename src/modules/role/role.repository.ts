@@ -16,7 +16,7 @@ export class RoleRepository extends BaseRepository<Role> {
   }
 
   async findWithPagination(
-    params: PaginationParamsDto & { searchFields?: string[] }
+    params: PaginationParamsDto & { searchFields?: string[] },
   ): Promise<PaginationResult<Role>> {
     const qb = this.createQueryBuilder();
     qb.leftJoinAndSelect(`${qb.alias}.permissions`, 'permissions');

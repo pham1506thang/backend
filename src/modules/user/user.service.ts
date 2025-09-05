@@ -106,7 +106,7 @@ export class UserService {
       }
       user.roles = foundRoles;
     }
-    
+
     // Save the user with updated roles
     await this.userRepository.save(user);
     return user;

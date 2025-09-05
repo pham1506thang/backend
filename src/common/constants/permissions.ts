@@ -19,8 +19,8 @@ export const DOMAINS = {
       ARCHIVE: 'archive',
       FEATURE: 'feature',
       PIN: 'pin',
-      SCHEDULE: 'schedule'
-    }
+      SCHEDULE: 'schedule',
+    },
   },
   COMMENTS: {
     value: 'comments',
@@ -33,8 +33,8 @@ export const DOMAINS = {
       MODERATE: 'moderate',
       REPORT: 'report',
       REPLY: 'reply',
-      LIKE: 'like'
-    }
+      LIKE: 'like',
+    },
   },
   USERS: {
     value: 'users',
@@ -48,8 +48,8 @@ export const DOMAINS = {
       BLOCK: 'block',
       CHANGE_PASSWORD: 'change_password',
       RESET_PASSWORD: 'reset_password',
-      VERIFY: 'verify'
-    }
+      VERIFY: 'verify',
+    },
   },
   ROLES: {
     value: 'roles',
@@ -59,8 +59,8 @@ export const DOMAINS = {
       CREATE: 'create',
       EDIT: 'edit',
       DELETE: 'delete',
-      ASSIGN_PERMISSION: 'assign_permission'
-    }
+      ASSIGN_PERMISSION: 'assign_permission',
+    },
   },
   CATEGORIES: {
     value: 'categories',
@@ -69,8 +69,8 @@ export const DOMAINS = {
       CREATE: 'create',
       EDIT: 'edit',
       DELETE: 'delete',
-      MANAGE: 'manage'
-    }
+      MANAGE: 'manage',
+    },
   },
   TAGS: {
     value: 'tags',
@@ -79,8 +79,8 @@ export const DOMAINS = {
       CREATE: 'create',
       EDIT: 'edit',
       DELETE: 'delete',
-      MANAGE: 'manage'
-    }
+      MANAGE: 'manage',
+    },
   },
   MEDIAS: {
     value: 'medias',
@@ -90,8 +90,8 @@ export const DOMAINS = {
       DELETE: 'delete',
       EDIT: 'edit',
       DOWNLOAD: 'download',
-      SHARE: 'share'
-    }
+      SHARE: 'share',
+    },
   },
   SETTINGS: {
     value: 'settings',
@@ -100,28 +100,28 @@ export const DOMAINS = {
       SEO: 'seo',
       EMAIL: 'email',
       SECURITY: 'security',
-      PAYMENT: 'payment'
-    }
+      PAYMENT: 'payment',
+    },
   },
   REPORTS: {
     value: 'reports',
     actions: {
       VIEW_TRAFFIC: 'view_traffic',
-      VIEW_CONTENT: 'view_content'
-    }
+      VIEW_CONTENT: 'view_content',
+    },
   },
   ANALYTICS: {
     value: 'analytics',
     actions: {
-      ACCESS: 'access'
-    }
-  }
+      ACCESS: 'access',
+    },
+  },
 };
 
 function generateAllPermissions() {
-  return Object.values(DOMAINS).map(domainObj => ({
+  return Object.values(DOMAINS).map((domainObj) => ({
     domain: domainObj.value,
-    actions: Object.values(domainObj.actions)
+    actions: Object.values(domainObj.actions),
   }));
 }
 

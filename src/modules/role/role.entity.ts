@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { Permission } from './permission.entity';
 import { IBaseEntity } from 'common/interfaces/base-entity.interface';
 
@@ -25,7 +31,9 @@ export class Role implements IBaseEntity {
   @Column({ default: false })
   isProtected: boolean;
 
-  @ManyToMany(() => Permission, permission => permission.roles, { cascade: true })
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    cascade: true,
+  })
   @JoinTable({ name: 'role_permissions' })
   permissions: Permission[];
 

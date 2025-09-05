@@ -25,4 +25,4 @@ import { GrowthBookModule } from './modules/growthbook/growthbook.module';
     GrowthBookModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -13,7 +13,7 @@ export class RoleGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const user = req.user as JwtPayload;
-    
+
     if (!user) return false;
 
     const { domain, action } =
@@ -24,11 +24,7 @@ export class RoleGuard implements CanActivate {
 
     // roleIds là mảng string
     const roleIds = user.roles || [];
-    
-    return await this.roleService.hasPermission(
-      roleIds,
-      domain,
-      action,
-    );
+
+    return await this.roleService.hasPermission(roleIds, domain, action);
   }
 }

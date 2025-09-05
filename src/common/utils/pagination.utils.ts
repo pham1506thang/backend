@@ -1,9 +1,15 @@
-import { FilterField, PaginationResult } from 'common/interfaces/pagination.interface';
+import {
+  FilterField,
+  PaginationResult,
+} from 'common/interfaces/pagination.interface';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
-export function applyFilters<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, filters: FilterField[] = []): SelectQueryBuilder<T> {
-  filters.forEach(filter => {
+export function applyFilters<T extends ObjectLiteral>(
+  qb: SelectQueryBuilder<T>,
+  filters: FilterField[] = [],
+): SelectQueryBuilder<T> {
+  filters.forEach((filter) => {
     const operator = filter.operator || 'eq';
     const paramKey = `${filter.field}_param`;
     const field = `${qb.alias}.${filter.field}`;
@@ -24,25 +30,37 @@ export function applyFilters<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>,
         }
         break;
       case 'contains':
-        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, { [paramKey]: `%${filter.value}%` });
+        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, {
+          [paramKey]: `%${filter.value}%`,
+        });
         break;
       case 'not_contains':
-        qb.andWhere(`LOWER(${field}) NOT ILIKE LOWER(:${paramKey})`, { [paramKey]: `%${filter.value}%` });
+        qb.andWhere(`LOWER(${field}) NOT ILIKE LOWER(:${paramKey})`, {
+          [paramKey]: `%${filter.value}%`,
+        });
         break;
       case 'starts_with':
-        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, { [paramKey]: `${filter.value}%` });
+        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, {
+          [paramKey]: `${filter.value}%`,
+        });
         break;
       case 'ends_with':
-        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, { [paramKey]: `%${filter.value}` });
+        qb.andWhere(`LOWER(${field}) ILIKE LOWER(:${paramKey})`, {
+          [paramKey]: `%${filter.value}`,
+        });
         break;
       case 'in':
         if (Array.isArray(filter.value) && filter.value.length > 0) {
-          qb.andWhere(`${field} IN (:...${paramKey})`, { [paramKey]: filter.value });
+          qb.andWhere(`${field} IN (:...${paramKey})`, {
+            [paramKey]: filter.value,
+          });
         }
         break;
       case 'nin':
         if (Array.isArray(filter.value) && filter.value.length > 0) {
-          qb.andWhere(`${field} NOT IN (:...${paramKey})`, { [paramKey]: filter.value });
+          qb.andWhere(`${field} NOT IN (:...${paramKey})`, {
+            [paramKey]: filter.value,
+          });
         }
         break;
       case 'gt':
@@ -65,10 +83,13 @@ export function applyFilters<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>,
         break;
       case 'between':
         if (Array.isArray(filter.value) && filter.value.length === 2) {
-          qb.andWhere(`${field} BETWEEN :${paramKey}_start AND :${paramKey}_end`, {
-            [`${paramKey}_start`]: filter.value[0],
-            [`${paramKey}_end`]: filter.value[1]
-          });
+          qb.andWhere(
+            `${field} BETWEEN :${paramKey}_start AND :${paramKey}_end`,
+            {
+              [`${paramKey}_start`]: filter.value[0],
+              [`${paramKey}_end`]: filter.value[1],
+            },
+          );
         }
         break;
       default:
@@ -81,18 +102,32 @@ export function applyFilters<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>,
 }
 
 // Hàm áp dụng sort cho QueryBuilder
-export function applySorts<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, sorts: { field: string, order: 'ascend' | 'descend' }[] = []): SelectQueryBuilder<T> {
-  sorts.forEach(sort => {
-    qb.addOrderBy(`${qb.alias}.${sort.field}`, sort.order === 'ascend' ? 'ASC' : 'DESC');
+export function applySorts<T extends ObjectLiteral>(
+  qb: SelectQueryBuilder<T>,
+  sorts: { field: string; order: 'ascend' | 'descend' }[] = [],
+): SelectQueryBuilder<T> {
+  sorts.forEach((sort) => {
+    qb.addOrderBy(
+      `${qb.alias}.${sort.field}`,
+      sort.order === 'ascend' ? 'ASC' : 'DESC',
+    );
   });
   return qb;
 }
 
-export function applySearch<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, search: string, searchFields: string[] = []): SelectQueryBuilder<T> {
+export function applySearch<T extends ObjectLiteral>(
+  qb: SelectQueryBuilder<T>,
+  search: string,
+  searchFields: string[] = [],
+): SelectQueryBuilder<T> {
   if (search && searchFields.length) {
-    const conditions = searchFields.map(field => {
+    const conditions = searchFields.map((field) => {
       // Handle numeric fields differently
-      if (field.endsWith('id') || field.includes('number') || field.includes('amount')) {
+      if (
+        field.endsWith('id') ||
+        field.includes('number') ||
+        field.includes('amount')
+      ) {
         if (!isNaN(Number(search))) {
           return `CAST(${qb.alias}.${field} AS TEXT) = :exactSearch`;
         }
@@ -104,7 +139,7 @@ export function applySearch<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, 
 
     qb.andWhere(`(${conditions.join(' OR ')})`, {
       search: `%${search}%`,
-      exactSearch: search
+      exactSearch: search,
     });
   }
   return qb;
@@ -112,7 +147,7 @@ export function applySearch<T extends ObjectLiteral>(qb: SelectQueryBuilder<T>, 
 
 export async function buildPaginationResponse<T extends ObjectLiteral>(
   qb: SelectQueryBuilder<T>,
-  params: PaginationParamsDto
+  params: PaginationParamsDto,
 ): Promise<PaginationResult<T>> {
   const [data, total] = await qb
     .skip((params.page - 1) * params.limit)
@@ -124,7 +159,7 @@ export async function buildPaginationResponse<T extends ObjectLiteral>(
       total,
       page: params.page,
       limit: params.limit,
-      totalPages: Math.ceil(total / params.limit)
-    }
+      totalPages: Math.ceil(total / params.limit),
+    },
   };
 }

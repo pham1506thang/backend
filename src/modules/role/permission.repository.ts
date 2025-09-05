@@ -14,6 +14,6 @@ export class PermissionRepository extends BaseRepository<Permission> {
   }
 
   async findByDomainWithAction(domain: string, action: string) {
-    return this.repository.findOneBy({ domain, action })
+    return this.repository.findOneBy({ domain, action });
   }
 }

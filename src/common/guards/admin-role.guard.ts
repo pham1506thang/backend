@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Request } from 'express';
 
 @Injectable()
@@ -9,9 +14,11 @@ export class AdminRoleGuard implements CanActivate {
 
     // If trying to set isAdmin through API, throw error
     if (body.isAdmin !== undefined) {
-      throw new ForbiddenException('User cannot set isAdmin because Admin role is created by system');
+      throw new ForbiddenException(
+        'User cannot set isAdmin because Admin role is created by system',
+      );
     }
 
     return true;
   }
-} 
+}

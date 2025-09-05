@@ -1,8 +1,23 @@
-import { Body, Controller, Get, Post, UseGuards, Patch, Param, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Patch,
+  Param,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
 import { RoleGuard } from '../../common/guards/role.guard';
-import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AssignUserRolesDTO } from './user.dto';
+import {
+  CreateUserDTO,
+  UpdateUserDTO,
+  ChangePasswordDTO,
+  AssignUserRolesDTO,
+} from './user.dto';
 import { RolePermission } from '../../common/decorators/role-permission.decorator';
 import { DOMAINS } from 'common/constants/permissions';
 import { CurrentUser } from 'common/decorators/current-user.decorator';
@@ -16,7 +31,10 @@ import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 @UseGuards(ControllerFeatureGuard)
 @ControllerFeature(DOMAINS.USERS.value)
 export class UserController {
-  constructor(private readonly userService: UserService, private readonly growthBookService: GrowthBookService) { }
+  constructor(
+    private readonly userService: UserService,
+    private readonly growthBookService: GrowthBookService,
+  ) {}
 
   @Get()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -44,13 +62,12 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
-
   @Patch(':id/change-password')
   @UseGuards(JwtAuthGuard)
   @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.CHANGE_PASSWORD)
   async changePassword(
     @Param('id') id: string,
-    @Body() changePasswordDto: ChangePasswordDTO
+    @Body() changePasswordDto: ChangePasswordDTO,
   ) {
     await this.userService.changePassword(id, changePasswordDto);
     return { message: 'Password changed successfully' };
@@ -61,7 +78,7 @@ export class UserController {
   @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.ASSIGN_ROLE)
   async assignUserRoles(
     @Param('id') id: string,
-    @Body() assignUserRolesDto: AssignUserRolesDTO
+    @Body() assignUserRolesDto: AssignUserRolesDTO,
   ) {
     await this.userService.updateUserRoles(id, assignUserRolesDto);
     return { message: 'Assign roles successfully' };
@@ -74,10 +91,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDTO,
   ) {
-    await this.userService.updateUser(
-      id,
-      updateUserDto,
-    );
+    await this.userService.updateUser(id, updateUserDto);
     return { message: 'Update user successfully' };
   }
 }

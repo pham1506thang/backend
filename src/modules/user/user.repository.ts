@@ -12,10 +12,13 @@ export class UserRepository extends BaseRepository<User> {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
   ) {
-    super(userRepo)
+    super(userRepo);
   }
 
-  async findByUsername(username: string, includeDeleted = false): Promise<User | null> {
+  async findByUsername(
+    username: string,
+    includeDeleted = false,
+  ): Promise<User | null> {
     return this.userRepo.findOne({
       where: { username, isDeleted: includeDeleted ? undefined : false },
       relations: ['roles'],
@@ -37,7 +40,7 @@ export class UserRepository extends BaseRepository<User> {
   }
 
   async findWithPagination(
-    params: PaginationParamsDto & { searchFields?: string[] }
+    params: PaginationParamsDto & { searchFields?: string[] },
   ): Promise<PaginationResult<User>> {
     const qb = this.createQueryBuilder();
 
@@ -49,11 +52,15 @@ export class UserRepository extends BaseRepository<User> {
     // handle this, so we intercept the filter here and apply the condition directly to the
     // joined 'roles' table.
     if (params.filters) {
-      const roleFilterIndex = params.filters.findIndex(f => f.field === 'roles');
+      const roleFilterIndex = params.filters.findIndex(
+        (f) => f.field === 'roles',
+      );
 
       if (roleFilterIndex > -1) {
         const roleFilter = params.filters[roleFilterIndex];
-        const roleIds = Array.isArray(roleFilter.value) ? roleFilter.value : [roleFilter.value];
+        const roleIds = Array.isArray(roleFilter.value)
+          ? roleFilter.value
+          : [roleFilter.value];
 
         if (roleIds.length > 0) {
           // Apply a WHERE condition on the ID of the joined 'roles' table alias.

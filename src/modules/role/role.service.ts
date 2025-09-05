@@ -13,7 +13,7 @@ export class RoleService {
   constructor(
     private readonly roleRepository: RoleRepository,
     private readonly permissionRepository: PermissionRepository,
-  ) { }
+  ) {}
 
   async findPaginatedRoles(params: PaginationParamsDto) {
     return this.roleRepository.findWithPagination({
@@ -24,14 +24,14 @@ export class RoleService {
 
   async findAllSummary(): Promise<SummaryRole[]> {
     const roles = await this.roleRepository.findAll();
-    return roles.map(role => ({
+    return roles.map((role) => ({
       id: role.id,
       code: role.code,
       label: role.label,
       description: role.description,
       isAdmin: role.isAdmin,
       isSuperAdmin: role.isSuperAdmin,
-      isProtected: role.isProtected
+      isProtected: role.isProtected,
     }));
   }
 
@@ -51,10 +51,10 @@ export class RoleService {
     if (roleIds.length === 0) return false;
     const roles = await this.findByIds(roleIds);
     if (roles.length !== roleIds.length) return false;
-    if (roles.some(role => role.isAdmin || role.isSuperAdmin)) return true;
-    const permissions = roles.flatMap(role => role.permissions || []);
+    if (roles.some((role) => role.isAdmin || role.isSuperAdmin)) return true;
+    const permissions = roles.flatMap((role) => role.permissions || []);
     return permissions.some(
-      (perm) => perm.domain === domain && perm.action === action
+      (perm) => perm.domain === domain && perm.action === action,
     );
   }
 
@@ -67,7 +67,7 @@ export class RoleService {
     return this.roleRepository.create({
       ...dto,
       isAdmin: false,
-      permissions
+      permissions,
     });
   }
 
@@ -80,16 +80,13 @@ export class RoleService {
     if (dto.permissions && dto.permissions.length > 0) {
       permissions = await this.permissionRepository.findByIds(dto.permissions);
     }
-    return this.roleRepository.update(
-      id,
-      {
-        ...dto,
-        isAdmin: role.isAdmin,
-        isSuperAdmin: role.isSuperAdmin,
-        isProtected: role.isProtected,
-        permissions
-      }
-    );
+    return this.roleRepository.update(id, {
+      ...dto,
+      isAdmin: role.isAdmin,
+      isSuperAdmin: role.isSuperAdmin,
+      isProtected: role.isProtected,
+      permissions,
+    });
   }
 
   async remove(id: string) {

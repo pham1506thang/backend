@@ -4,52 +4,121 @@ export const DEFAULT_ROLES = [
   {
     code: 'reader',
     label: 'Độc giả',
-    description: 'Người dùng có thể đọc bài viết, tạo bình luận và quản lý thông tin cá nhân',
+    description:
+      'Người dùng có thể đọc bài viết, tạo bình luận và quản lý thông tin cá nhân',
     permissions: [
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.VIEW },
-      { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.CREATE },
-      { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.REPORT },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.EDIT_PROFILE },
+      {
+        domain: DOMAINS.COMMENTS.value,
+        action: DOMAINS.COMMENTS.actions.CREATE,
+      },
+      {
+        domain: DOMAINS.COMMENTS.value,
+        action: DOMAINS.COMMENTS.actions.REPORT,
+      },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.VIEW_PROFILE,
+      },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.EDIT_PROFILE,
+      },
     ],
   },
   {
     code: 'reporter',
     label: 'Phóng viên',
-    description: 'Có thể tạo, chỉnh sửa và xóa bài viết của mình, quản lý media và bình luận',
+    description:
+      'Có thể tạo, chỉnh sửa và xóa bài viết của mình, quản lý media và bình luận',
     permissions: [
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.VIEW },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.CREATE },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.EDIT_OWN },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.DELETE_OWN },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.CREATE,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.EDIT_OWN,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.DELETE_OWN,
+      },
       { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.VIEW },
-      { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.CREATE },
-      { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.REPORT },
+      {
+        domain: DOMAINS.COMMENTS.value,
+        action: DOMAINS.COMMENTS.actions.CREATE,
+      },
+      {
+        domain: DOMAINS.COMMENTS.value,
+        action: DOMAINS.COMMENTS.actions.REPORT,
+      },
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.VIEW },
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.UPLOAD },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.EDIT_PROFILE },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.VIEW_PROFILE,
+      },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.EDIT_PROFILE,
+      },
     ],
   },
   {
     code: 'editor',
     label: 'Biên tập viên',
-    description: 'Có toàn quyền quản lý nội dung, bao gồm xuất bản, kiểm duyệt và quản lý tất cả bài viết',
+    description:
+      'Có toàn quyền quản lý nội dung, bao gồm xuất bản, kiểm duyệt và quản lý tất cả bài viết',
     permissions: [
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.VIEW },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.CREATE },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.EDIT_ALL },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.DELETE_ALL },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.PUBLISH },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.UNPUBLISH },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.REVIEW },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.MODERATE },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.FEATURE },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.CREATE,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.EDIT_ALL,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.DELETE_ALL,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.PUBLISH,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.UNPUBLISH,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.REVIEW,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.MODERATE,
+      },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.FEATURE,
+      },
       { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.PIN },
-      { domain: DOMAINS.ARTICLES.value, action: DOMAINS.ARTICLES.actions.SCHEDULE },
+      {
+        domain: DOMAINS.ARTICLES.value,
+        action: DOMAINS.ARTICLES.actions.SCHEDULE,
+      },
       { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.VIEW },
-      { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.MODERATE },
-      { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.REPLY },
+      {
+        domain: DOMAINS.COMMENTS.value,
+        action: DOMAINS.COMMENTS.actions.MODERATE,
+      },
+      {
+        domain: DOMAINS.COMMENTS.value,
+        action: DOMAINS.COMMENTS.actions.REPLY,
+      },
       { domain: DOMAINS.COMMENTS.value, action: DOMAINS.COMMENTS.actions.LIKE },
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.VIEW },
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.UPLOAD },
@@ -57,30 +126,55 @@ export const DEFAULT_ROLES = [
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.EDIT },
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.DOWNLOAD },
       { domain: DOMAINS.MEDIAS.value, action: DOMAINS.MEDIAS.actions.SHARE },
-      { domain: DOMAINS.CATEGORIES.value, action: DOMAINS.CATEGORIES.actions.VIEW },
-      { domain: DOMAINS.CATEGORIES.value, action: DOMAINS.CATEGORIES.actions.MANAGE },
-      { domain: DOMAINS.CATEGORIES.value, action: DOMAINS.CATEGORIES.actions.CREATE },
-      { domain: DOMAINS.CATEGORIES.value, action: DOMAINS.CATEGORIES.actions.EDIT },
-      { domain: DOMAINS.CATEGORIES.value, action: DOMAINS.CATEGORIES.actions.DELETE },
+      {
+        domain: DOMAINS.CATEGORIES.value,
+        action: DOMAINS.CATEGORIES.actions.VIEW,
+      },
+      {
+        domain: DOMAINS.CATEGORIES.value,
+        action: DOMAINS.CATEGORIES.actions.MANAGE,
+      },
+      {
+        domain: DOMAINS.CATEGORIES.value,
+        action: DOMAINS.CATEGORIES.actions.CREATE,
+      },
+      {
+        domain: DOMAINS.CATEGORIES.value,
+        action: DOMAINS.CATEGORIES.actions.EDIT,
+      },
+      {
+        domain: DOMAINS.CATEGORIES.value,
+        action: DOMAINS.CATEGORIES.actions.DELETE,
+      },
       { domain: DOMAINS.TAGS.value, action: DOMAINS.TAGS.actions.VIEW },
       { domain: DOMAINS.TAGS.value, action: DOMAINS.TAGS.actions.MANAGE },
       { domain: DOMAINS.TAGS.value, action: DOMAINS.TAGS.actions.CREATE },
       { domain: DOMAINS.TAGS.value, action: DOMAINS.TAGS.actions.EDIT },
       { domain: DOMAINS.TAGS.value, action: DOMAINS.TAGS.actions.DELETE },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.EDIT_PROFILE },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.VIEW_PROFILE,
+      },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.EDIT_PROFILE,
+      },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.CREATE },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.DELETE },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.BLOCK },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.RESET_PASSWORD },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.RESET_PASSWORD,
+      },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VERIFY },
     ],
   },
   {
     code: 'super_admin',
     label: 'Super Admin',
-    description: 'Có toàn quyền truy cập hệ thống, bao gồm tất cả quyền admin và quản lý cấu hình hệ thống',
+    description:
+      'Có toàn quyền truy cập hệ thống, bao gồm tất cả quyền admin và quản lý cấu hình hệ thống',
     isAdmin: true,
     isSuperAdmin: true,
     permissions: [],
@@ -95,17 +189,30 @@ export const DEFAULT_ROLES = [
   {
     code: 'user_manager',
     label: 'Quản lý người dùng',
-    description: 'Chuyên quản lý người dùng, bao gồm tạo, xóa, khóa tài khoản và phân quyền',
+    description:
+      'Chuyên quản lý người dùng, bao gồm tạo, xóa, khóa tài khoản và phân quyền',
     permissions: [
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.EDIT_PROFILE },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.VIEW_PROFILE,
+      },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.EDIT_PROFILE,
+      },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.CREATE },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.DELETE },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.BLOCK },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.RESET_PASSWORD },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.RESET_PASSWORD,
+      },
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VERIFY },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.ASSIGN_ROLE },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.ASSIGN_ROLE,
+      },
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.VIEW },
     ],
   },
@@ -118,7 +225,10 @@ export const DEFAULT_ROLES = [
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.CREATE },
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.EDIT },
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.DELETE },
-      { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.ASSIGN_PERMISSION },
+      {
+        domain: DOMAINS.ROLES.value,
+        action: DOMAINS.ROLES.actions.ASSIGN_PERMISSION,
+      },
     ],
   },
   {
@@ -127,14 +237,21 @@ export const DEFAULT_ROLES = [
     description: 'Hỗ trợ người dùng với quyền xem thông tin và reset mật khẩu',
     permissions: [
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_PROFILE },
-      { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.RESET_PASSWORD },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.VIEW_PROFILE,
+      },
+      {
+        domain: DOMAINS.USERS.value,
+        action: DOMAINS.USERS.actions.RESET_PASSWORD,
+      },
     ],
   },
   {
     code: 'auditor',
     label: 'Kiểm toán viên',
-    description: 'Có quyền xem thông tin người dùng và vai trò để thực hiện kiểm toán',
+    description:
+      'Có quyền xem thông tin người dùng và vai trò để thực hiện kiểm toán',
     permissions: [
       { domain: DOMAINS.USERS.value, action: DOMAINS.USERS.actions.VIEW_ALL },
       { domain: DOMAINS.ROLES.value, action: DOMAINS.ROLES.actions.VIEW },

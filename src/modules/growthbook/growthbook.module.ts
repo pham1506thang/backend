@@ -5,4 +5,4 @@ import { GrowthBookService } from './growthbook.service';
   providers: [GrowthBookService],
   exports: [GrowthBookService],
 })
-export class GrowthBookModule {} 
+export class GrowthBookModule {}

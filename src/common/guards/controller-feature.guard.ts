@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GrowthBookService } from '../../modules/growthbook/growthbook.service';
 import { CONTROLLER_FEATURE_KEY } from '../decorators/controller-feature.decorator';
@@ -29,4 +34,4 @@ export class ControllerFeatureGuard implements CanActivate {
 
     return true;
   }
-} 
+}

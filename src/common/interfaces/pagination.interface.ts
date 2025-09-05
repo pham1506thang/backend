@@ -1,21 +1,27 @@
-export type FilterOperator = 
-  | 'eq' 
-  | 'neq' 
-  | 'contains' 
+export type FilterOperator =
+  | 'eq'
+  | 'neq'
+  | 'contains'
   | 'not_contains'
   | 'starts_with'
   | 'ends_with'
-  | 'in' 
-  | 'nin' 
-  | 'gt' 
-  | 'gte' 
-  | 'lt' 
+  | 'in'
+  | 'nin'
+  | 'gt'
+  | 'gte'
+  | 'lt'
   | 'lte'
   | 'is_null'
   | 'is_not_null'
   | 'between';
 
-type FilterValue = string | number | boolean | Date | Array<string | number | Date> | null;
+type FilterValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | Array<string | number | Date>
+  | null;
 
 export interface FilterField {
   field: string;

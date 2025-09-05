@@ -25,7 +25,10 @@ async function bootstrap() {
       for (const actionKey of Object.keys(domainObj.actions)) {
         const domain = domainObj.value as string;
         const action = domainObj.actions[actionKey] as string;
-        let perm = await permissionRepository.findByDomainWithAction(domain, action);
+        let perm = await permissionRepository.findByDomainWithAction(
+          domain,
+          action,
+        );
         if (!perm) {
           perm = await permissionRepository.create({ domain, action });
         }
@@ -34,14 +37,17 @@ async function bootstrap() {
     }
     console.log(`Imported ${allPermissions.length} permissions.`);
 
-    let superAdminRole: Role | undefined = undefined
+    let superAdminRole: Role | undefined = undefined;
     // 2. Import all default roles
     for (const roleDef of DEFAULT_ROLES) {
       // Map permissions from default role to permission entities
       let permissions: Permission[] = [];
       for (const p of roleDef.permissions) {
         // Sử dụng hàm findOne mới
-        const perm = await permissionRepository.findByDomainWithAction(p.domain, p.action);
+        const perm = await permissionRepository.findByDomainWithAction(
+          p.domain,
+          p.action,
+        );
         if (perm) permissions.push(perm);
       }
       const isSuperAdmin = !!roleDef.isSuperAdmin;
@@ -54,10 +60,10 @@ async function bootstrap() {
         isSuperAdmin,
         isAdmin,
         isProtected,
-        permissions
+        permissions,
       });
       if (isSuperAdmin) {
-        superAdminRole = role
+        superAdminRole = role;
       }
       console.log(`Imported role: ${roleDef.code}`);
     }
@@ -70,7 +76,9 @@ async function bootstrap() {
       roles: [superAdminRole.id],
     });
 
-    await userService.updateUser(superAdminUser.id, { status: USER_STATUS.ACTIVE })
+    await userService.updateUser(superAdminUser.id, {
+      status: USER_STATUS.ACTIVE,
+    });
 
     console.log('\u2705 Super Admin role and user created successfully');
     console.log('Super Admin Role ID:', superAdminRole.id);

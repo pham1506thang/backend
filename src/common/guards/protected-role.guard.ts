@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { RoleService } from '../../modules/role/role.service';
 
 @Injectable()
@@ -12,16 +17,19 @@ export class ProtectedRoleGuard implements CanActivate {
     const user = request.user;
 
     // Only check for PATCH / PUT and DELETE methods
-    if (!roleId || (method !== 'PATCH' && method !== 'DELETE' && method !== 'PUT')) {
+    if (
+      !roleId ||
+      (method !== 'PATCH' && method !== 'DELETE' && method !== 'PUT')
+    ) {
       return true;
     }
 
     const targetRole = await this.roleService.findById(roleId);
     const userRoles = await this.roleService.findByIds(user.roles);
-    
+
     // Check if user has any admin role
-    const hasAdminRole = userRoles.some(role => role.isAdmin);
-    
+    const hasAdminRole = userRoles.some((role) => role.isAdmin);
+
     // If user has admin role
     if (hasAdminRole) {
       // Admin cannot modify their own roles

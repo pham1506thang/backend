@@ -14,6 +14,6 @@ export class Permission implements IBaseEntity {
   @Column({ type: 'varchar' })
   action: ActionType;
 
-  @ManyToMany(() => Role, role => role.permissions)
+  @ManyToMany(() => Role, (role) => role.permissions)
   roles: Role[];
 }

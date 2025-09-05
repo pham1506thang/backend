@@ -12,7 +12,8 @@ export class GrowthBookService implements OnModuleInit {
       clientKey: this.configService.get<string>('GROWTHBOOK_CLIENT_KEY'),
       enableDevMode: process.env.NODE_ENV !== 'production',
     });
-    const tenantId = this.configService.get<string>('GROWTHBOOK_TENANT_ID') ?? "";
+    const tenantId =
+      this.configService.get<string>('GROWTHBOOK_TENANT_ID') ?? '';
     this.growthbook.setAttributes({ tenantId });
   }
 
@@ -37,4 +38,4 @@ export class GrowthBookService implements OnModuleInit {
   isFeatureEnabled(featureKey: string): boolean {
     return this.growthbook.isOn(featureKey);
   }
-} 
+}

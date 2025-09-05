@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, UseGuards, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
 import { DOMAINS } from 'common/constants/permissions';

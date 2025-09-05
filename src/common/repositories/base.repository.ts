@@ -8,11 +8,16 @@ import {
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { IBaseEntity } from 'common/interfaces/base-entity.interface';
 import { PaginationResult } from 'common/interfaces/pagination.interface';
-import { applyFilters, applySearch, applySorts, buildPaginationResponse } from 'common/utils/pagination.utils';
+import {
+  applyFilters,
+  applySearch,
+  applySorts,
+  buildPaginationResponse,
+} from 'common/utils/pagination.utils';
 import { PaginationParamsDto } from 'common/dto/pagination-params.dto';
 
 export class BaseRepository<T extends IBaseEntity> {
-  constructor(protected readonly repository: Repository<T>) { }
+  constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(): Promise<T[]> {
     return this.repository.find();
@@ -40,7 +45,9 @@ export class BaseRepository<T extends IBaseEntity> {
   }
 
   createQueryBuilder(): SelectQueryBuilder<T> {
-    return this.repository.createQueryBuilder(this.repository.metadata.tableName)
+    return this.repository.createQueryBuilder(
+      this.repository.metadata.tableName,
+    );
   }
 
   async save(entity: DeepPartial<T>): Promise<T> {
@@ -61,7 +68,7 @@ export class BaseRepository<T extends IBaseEntity> {
 
   async findWithPagination(
     params: PaginationParamsDto & { searchFields?: string[] },
-    queryBuilder?: SelectQueryBuilder<T>
+    queryBuilder?: SelectQueryBuilder<T>,
   ): Promise<PaginationResult<T>> {
     const qb = queryBuilder ?? this.createQueryBuilder();
 
@@ -79,5 +86,4 @@ export class BaseRepository<T extends IBaseEntity> {
 
     return buildPaginationResponse(qb, params);
   }
-
 }
