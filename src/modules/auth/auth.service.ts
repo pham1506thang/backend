@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload } from 'common/interfaces/jwt-user.interface';
 import { User } from '../user/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { UpdateProfileDTO, ChangePasswordDTO } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -58,7 +59,7 @@ export class AuthService {
       // Verify the refresh token but ignore expiration
       const payload = this.jwtService.verify(token, {
         ignoreExpiration: true, // Ignore JWT expiration since we're using cookie expiration
-      }) as JwtPayload;
+      });
 
       // Get user to verify it exists
       const user = await this.userService.findById(payload.id);
@@ -67,8 +68,25 @@ export class AuthService {
       }
 
       return this.generateAuthResponse(user);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDTO) {
+    return this.userService.updateUser(userId, dto);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDTO) {
+    return this.userService.changePassword(userId, dto);
+  }
+
+  async logout(userId: string) {
+    // For now, just return success
+    // In the future, you might want to:
+    // - Add token to blacklist
+    // - Update user's last logout time
+    // - Invalidate all user sessions
+    return { message: 'Logged out successfully' };
   }
 }

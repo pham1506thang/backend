@@ -7,6 +7,7 @@ import {
   Get,
   Req,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
@@ -17,6 +18,7 @@ import { UserService } from '../user/user.service';
 import { CookieOptions } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Permission } from 'modules/role/permission.entity';
+import { UpdateProfileDTO, ChangePasswordDTO } from './auth.dto';
 
 @Controller('auths')
 export class AuthController {
@@ -114,5 +116,44 @@ export class AuthController {
     // Don't send refresh token in response body
     const { refreshToken: _, ...responseData } = result;
     return responseData;
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(
+    @CurrentUser() user: JwtUser,
+    @Body() updateProfileDto: UpdateProfileDTO,
+  ) {
+    await this.authService.updateProfile(user.id, updateProfileDto);
+    return { message: 'Profile updated successfully' };
+  }
+
+  @Patch('change-password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @CurrentUser() user: JwtUser,
+    @Body() changePasswordDto: ChangePasswordDTO,
+  ) {
+    await this.authService.changePassword(user.id, changePasswordDto);
+    return { message: 'Password changed successfully' };
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(
+    @CurrentUser() user: JwtUser,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    // Call service method for any additional logout logic
+    await this.authService.logout(user.id);
+
+    // Clear refresh token cookie
+    response.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return { message: 'Logged out successfully' };
   }
 }
