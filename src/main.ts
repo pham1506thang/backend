@@ -20,7 +20,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:5173', // FE origin
-    credentials: true,              // if using cookies/auth
+    credentials: true, // if using cookies/auth
   });
 
   app.use(cookieParser());
