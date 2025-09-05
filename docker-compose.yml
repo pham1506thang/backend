@@ -21,6 +21,7 @@ services:
       - '${PORT}:${PORT}'
     volumes:
       - /app/node_modules
+      - ./src:/app/src
     command: npm run start:dev
 
 volumes:
