@@ -1,99 +1,339 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Microservices Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project consists of 3 microservices with **separate databases**:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Services
 
-## Description
+### 1. Main Service (Port 3000)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Purpose**: Core business logic, user management, role management
+- **Database**: PostgreSQL (maindb) - Port 5432
+- **Features**: User CRUD, Role management, Permission system, GrowthBook integration
+- **Dependencies**:
+  - Connects to **maindb** (PostgreSQL)
+  - Communicates with **Auth Service** for JWT verification
+  - Communicates with **Medias Service** for media operations
 
-## Project setup
+### 2. Auth Service (Port 3002)
+
+- **Purpose**: Authentication and authorization
+- **Database**: None (stateless)
+- **Features**: Login, JWT generation, password management, token refresh
+- **Dependencies**:
+  - Communicates with **Main Service** for user data lookup
+  - No direct database connection
+
+### 3. Medias Service (Port 3001)
+
+- **Purpose**: Media file management and processing
+- **Database**: PostgreSQL (mediasdb) - Port 5433
+- **Features**: File upload, image processing, versioning, async processing via RabbitMQ
+- **Dependencies**:
+  - Connects to **mediasdb** (PostgreSQL)
+  - Connects to **RabbitMQ** for async processing
+  - Communicates with **Auth Service** for JWT verification
+  - Communicates with **Main Service** for user data
+
+## Database Architecture
+
+### Main Service Database (maindb)
+
+- **Host**: db (Docker) / localhost (local)
+- **Port**: 5432
+- **Database**: maindb
+- **Tables**: users, roles, permissions, role_permissions, user_roles
+- **Used by**: Main Service only
+
+### Medias Service Database (mediasdb)
+
+- **Host**: medias-db (Docker) / localhost (local)
+- **Port**: 5433
+- **Database**: mediasdb
+- **Tables**: media, media_version, media_size, media_tag, media_tags_media
+- **Used by**: Medias Service only
+
+### Shared Services
+
+- **RabbitMQ**: Used by Medias Service for async processing
+- **Auth Service**: Stateless, no database
+
+## Setup
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Node.js 18+ (for local development)
+
+### Quick Start
+
+1. **Clone and setup**:
+
+   ```bash
+   git clone <repository>
+   cd backend
+   ```
+
+2. **Setup environment variables**:
+
+   ```bash
+   # Copy example files
+   cp main-service/.env.example main-service/.env
+   cp auth-service/.env.example auth-service/.env
+   cp medias-service/.env.example medias-service/.env
+
+   # Update values as needed
+   ```
+
+3. **Start all services**:
+   ```bash
+   docker-compose up
+   ```
+
+### Service URLs
+
+- **Main Service**: http://localhost:3000
+- **Auth Service**: http://localhost:3002
+- **Medias Service**: http://localhost:3001
+- **RabbitMQ Management**: http://localhost:15672
+
+### Database Access
+
+- **Main Service DB**: localhost:5432 (maindb)
+- **Medias Service DB**: localhost:5433 (mediasdb)
+
+### Development
+
+#### Run individual services locally:
 
 ```bash
-$ yarn install
+# Main Service
+cd main-service
+npm install
+npm run start:dev
+
+# Auth Service
+cd auth-service
+npm install
+npm run start:dev
+
+# Medias Service
+cd medias-service
+npm install
+npm run start:dev
 ```
 
-## Compile and run the project
+#### Run migrations:
 
 ```bash
-# development
-$ yarn run start
+# All migrations
+./run-migrations.sh
 
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+# Individual migrations
+npm run migration:main
+npm run migration:medias
 ```
 
-## Run tests
+## Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Main Service  │    │   Auth Service  │    │ Medias Service  │
+│   (Port 3000)   │    │   (Port 3002)   │    │   (Port 3001)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   PostgreSQL    │
+                    │   (Port 5432)   │
+                    │     maindb      │
+                    └─────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   PostgreSQL    │
+                    │   (Port 5433)   │
+                    │    mediasdb     │
+                    └─────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │    RabbitMQ     │
+                    │   (Port 5672)   │
+                    └─────────────────┘
+```
+
+## Service Communication
+
+### Main Service
+
+- **Database**: Connects to maindb (PostgreSQL)
+- **Auth**: Communicates with Auth Service for JWT verification
+- **Media**: Communicates with Medias Service for media operations
+
+### Auth Service
+
+- **Database**: None (stateless)
+- **User Data**: Communicates with Main Service for user lookup
+- **JWT**: Generates and validates JWT tokens
+
+### Medias Service
+
+- **Database**: Connects to mediasdb (PostgreSQL)
+- **Auth**: Communicates with Auth Service for JWT verification
+- **User Data**: Communicates with Main Service for user data
+- **Processing**: Uses RabbitMQ for async processing
+
+## Environment Variables
+
+Each service has its own `.env` file with specific configurations:
+
+- `main-service/.env` - Main service configuration
+- `auth-service/.env` - Auth service configuration
+- `medias-service/.env` - Medias service configuration
+
+See `.env.example` files in each service directory for reference.
+
+## Database Schema
+
+### Main Service Database (maindb)
+
+- `users` - User data
+- `roles` - Role definitions
+- `permissions` - Permission definitions
+- `role_permissions` - Role-Permission mapping
+- `user_roles` - User-Role mapping
+
+### Medias Service Database (mediasdb)
+
+- `media` - Media files metadata
+- `media_version` - Media versioning
+- `media_size` - Multiple file sizes
+- `media_tag` - Media tags
+- `media_tags_media` - Media-Tag mapping
+
+## Commands
+
+### Docker Commands
 
 ```bash
-# unit tests
-$ yarn run test
+# Start all services
+docker-compose up
 
-# e2e tests
-$ yarn run test:e2e
+# Start in background
+docker-compose up -d
 
-# test coverage
-$ yarn run test:cov
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Clean up
+docker-compose down -v
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Make Commands
 
 ```bash
-$ yarn install -g mau
-$ mau deploy
+# Show help
+make help
+
+# Build all services
+make build
+
+# Start all services
+make up
+
+# Stop all services
+make down
+
+# View logs
+make logs
+
+# Run migrations
+make migrate
+
+# Clean up
+make clean
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Database Commands
 
-## Resources
+```bash
+# Connect to Main Service DB
+make db-main
 
-Check out a few resources that may come in handy when working with NestJS:
+# Connect to Medias Service DB
+make db-medias
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Development Workflow
 
-## Support
+1. **Start services**: `docker-compose up`
+2. **Run migrations**: `./run-migrations.sh`
+3. **Access services**:
+   - Main Service: http://localhost:3000
+   - Auth Service: http://localhost:3002
+   - Medias Service: http://localhost:3001
+4. **Monitor logs**: `docker-compose logs -f`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Production Deployment
 
-## Stay in touch
+Use `docker-compose.prod.yml` for production:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
 
-## License
+## Troubleshooting
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Common Issues
+
+1. **Port conflicts**: Check if ports 3000, 3001, 3002, 5432, 5433, 5672 are available
+2. **Database connection**: Ensure PostgreSQL containers are running
+3. **RabbitMQ connection**: Check RabbitMQ container status
+4. **Environment variables**: Verify `.env` files are properly configured
+
+### Logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f main-service
+docker-compose logs -f auth-service
+docker-compose logs -f medias-service
+```
+
+### Database Access
+
+```bash
+# Main Service DB
+docker-compose exec db psql -U postgres -d maindb
+
+# Medias Service DB
+docker-compose exec medias-db psql -U postgres -d mediasdb
+```
+
+## Important Notes
+
+### Database Separation
+
+- **Main Service** và **Medias Service** có database riêng biệt
+- **Auth Service** không có database (stateless)
+- Mỗi service chỉ connect đến database của mình
+- Không có shared database giữa các services
+
+### Service Dependencies
+
+- **Main Service**: maindb + Auth Service
+- **Auth Service**: Main Service (for user data)
+- **Medias Service**: mediasdb + RabbitMQ + Auth Service + Main Service
+
+### Data Flow
+
+1. **Authentication**: Auth Service → Main Service (user lookup)
+2. **Media Operations**: Medias Service → Auth Service (JWT verification)
+3. **User Data**: Medias Service → Main Service (user data)
+4. **Async Processing**: Medias Service → RabbitMQ

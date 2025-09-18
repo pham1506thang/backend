@@ -1,0 +1,21 @@
+# Production configuration
+services:
+  main-service:
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  auth-service:
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  medias-service:
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  user-permission-gateway:
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

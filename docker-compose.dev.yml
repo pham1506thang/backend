@@ -1,0 +1,68 @@
+# Development configuration
+services:
+  # Shared common library (no container needed, just volume mount)
+  shared-common:
+    image: node:20-alpine
+    volumes:
+      - ./shared-common:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ["yarn", "watch"]
+    environment:
+      - NODE_ENV=development
+
+  main-service:
+    build:
+      context: .
+      dockerfile: ./main-service/Dockerfile
+    volumes:
+      - ./main-service:/app
+      - ./shared-common:/app/shared-common
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - shared-common
+    command: ["yarn", "start:dev"]
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    volumes:
+      - ./auth-service:/app
+      - ./shared-common:/app/shared-common
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - shared-common
+    command: ["yarn", "start:dev"]
+
+  medias-service:
+    build:
+      context: .
+      dockerfile: ./medias-service/Dockerfile
+    volumes:
+      - ./medias-service:/app
+      - ./shared-common:/app/shared-common
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - shared-common
+    command: ["yarn", "start:dev"]
+
+  user-permission-gateway:
+    build:
+      context: .
+      dockerfile: ./user-permission-gateway/Dockerfile
+    volumes:
+      - ./user-permission-gateway:/app
+      - ./shared-common:/app/shared-common
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - shared-common
+    command: ["yarn", "start:dev"]

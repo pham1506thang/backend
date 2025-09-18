@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+*/dist/
+build/
+*/build/
+
+# Environment files
+.env
+*/.env
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# Package files
+package-lock.json
+yarn.lock
+
+# Coverage
+coverage/
+*/coverage/
+
+# Storage
+storage/
+*/storage/
