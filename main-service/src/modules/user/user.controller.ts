@@ -8,12 +8,10 @@ import {
   Param,
   Body,
   UseGuards,
-  Request,
 } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO } from './user.dto';
-import { JwtAuthGuard, CurrentUser, JwtUser, USER_MESSAGE_PATTERNS } from 'shared-common';
+import { JwtAuthGuard, CurrentUser, JwtUser } from 'shared-common';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)

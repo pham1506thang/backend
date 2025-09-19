@@ -32,6 +32,7 @@ services:
     build:
       context: .
       dockerfile: ./main-service/Dockerfile
+      target: production
       args:
         PORT: ${MAIN_SERVICE_PORT}
     env_file:
@@ -40,7 +41,6 @@ services:
     # Ports removed - only accessible via Nginx Gateway
     depends_on:
       - db
-      - auth-service
     networks:
       - backend-network
     healthcheck:
@@ -53,6 +53,7 @@ services:
     build:
       context: .
       dockerfile: ./auth-service/Dockerfile
+      target: production
       args:
         PORT: ${AUTH_SERVICE_PORT}
     env_file:
@@ -73,6 +74,7 @@ services:
     build:
       context: .
       dockerfile: ./medias-service/Dockerfile
+      target: production
       args:
         PORT: ${MEDIAS_SERVICE_PORT}
     env_file:
@@ -80,9 +82,10 @@ services:
       - ./medias-service/.env
     # Ports removed - only accessible via Nginx Gateway
     depends_on:
-      - medias-db
-      - rabbitmq
-      - auth-service
+      medias-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - backend-network
     healthcheck:
@@ -95,6 +98,7 @@ services:
     build:
       context: .
       dockerfile: ./user-permission-gateway/Dockerfile
+      target: production
       args:
         PORT: ${USER_PERMISSION_GATEWAY_PORT}
     env_file:
@@ -102,9 +106,10 @@ services:
       - ./user-permission-gateway/.env
     # Ports removed - only accessible via Nginx Gateway
     depends_on:
-      - db
-      - rabbitmq
-      - main-service
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - backend-network
     healthcheck:
@@ -153,6 +158,13 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
 
 volumes:
   main_postgres_data:

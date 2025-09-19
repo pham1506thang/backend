@@ -6,7 +6,7 @@ import {
   IsEmail,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { OmitType } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/mapped-types';
 
 export class CreateUserDTO {
   @IsString()

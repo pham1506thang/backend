@@ -1,68 +1,50 @@
-# Development configuration
+# Development configuration - Simple version
 services:
-  # Shared common library (no container needed, just volume mount)
-  shared-common:
-    image: node:20-alpine
-    volumes:
-      - ./shared-common:/app
-      - /app/node_modules
-    working_dir: /app
-    command: ["yarn", "watch"]
-    environment:
-      - NODE_ENV=development
-
+  # Development overrides for services
   main-service:
     build:
       context: .
       dockerfile: ./main-service/Dockerfile
+      target: development
     volumes:
-      - ./main-service:/app
+      - ./main-service:/app/main-service
       - ./shared-common:/app/shared-common
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    depends_on:
-      - shared-common
-    command: ["yarn", "start:dev"]
 
   auth-service:
     build:
       context: .
       dockerfile: ./auth-service/Dockerfile
+      target: development
     volumes:
-      - ./auth-service:/app
+      - ./auth-service:/app/auth-service
       - ./shared-common:/app/shared-common
-      - /app/node_modules
     environment:
       - NODE_ENV=development
-    depends_on:
-      - shared-common
-    command: ["yarn", "start:dev"]
 
   medias-service:
     build:
       context: .
       dockerfile: ./medias-service/Dockerfile
+      target: development
     volumes:
-      - ./medias-service:/app
+      - ./medias-service:/app/medias-service
       - ./shared-common:/app/shared-common
       - /app/node_modules
+      - ./storage:/app/storage
     environment:
       - NODE_ENV=development
-    depends_on:
-      - shared-common
-    command: ["yarn", "start:dev"]
 
   user-permission-gateway:
     build:
       context: .
       dockerfile: ./user-permission-gateway/Dockerfile
+      target: development
     volumes:
-      - ./user-permission-gateway:/app
+      - ./user-permission-gateway:/app/user-permission-gateway
       - ./shared-common:/app/shared-common
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    depends_on:
-      - shared-common
-    command: ["yarn", "start:dev"]
