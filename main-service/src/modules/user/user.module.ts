@@ -6,9 +6,14 @@ import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { User } from './user.entity';
 import { RoleModule } from '../role/role.module';
+import { UserPermissionGatewayModule } from 'shared-common';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), forwardRef(() => RoleModule)],
+  imports: [
+    TypeOrmModule.forFeature([User]), 
+    RoleModule,
+    UserPermissionGatewayModule,
+  ],
   controllers: [UserController, UserMessageController],
   providers: [UserService, UserRepository],
   exports: [UserService],

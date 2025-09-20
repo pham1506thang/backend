@@ -49,8 +49,7 @@ export class AuthController {
   }
 
   @Get('auth')
-  @UseGuards(JwtAuthGuard, GatewayRoleGuard)
-  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.VIEW)
+  @UseGuards(JwtAuthGuard)
   async getAuth(@CurrentUser() user: JwtUser) {
     const entityUser = await this.userClientService.findByIdWithPermissions(user.id);
     if (!entityUser) {

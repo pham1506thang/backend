@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { USER_MESSAGE_PATTERNS } from '../constants/message-patterns';
+import { PERMISSION_CHECK_MESSAGE_PATTERNS, USER_MESSAGE_PATTERNS } from '../constants/message-patterns';
 import { SERVICE_NAMES } from '../constants/message-queue';
 import { firstValueFrom } from 'rxjs';
 
@@ -19,26 +19,9 @@ export class UserPermissionService {
     action: string,
   ): Promise<boolean> {
     try {
-      const user = await firstValueFrom(
-        this.userPermissionGatewayClient.send(USER_MESSAGE_PATTERNS.FIND_BY_ID_WITH_PERMISSIONS, { id: userId })
+      return await firstValueFrom(
+        this.userPermissionGatewayClient.send(PERMISSION_CHECK_MESSAGE_PATTERNS.FIND_BY_ID_WITH_PERMISSIONS, { userId, domain, action })
       );
-      
-      if (!user || !user.roles) {
-        return false;
-      }
-
-      // Check if user has any role with the required permission
-      for (const role of user.roles) {
-        if (role.permissions) {
-          for (const permission of role.permissions) {
-            if (permission.domain === domain && permission.action === action) {
-              return true;
-            }
-          }
-        }
-      }
-
-      return false;
     } catch (error) {
       console.error('Error checking user permission:', error);
       throw new HttpException(

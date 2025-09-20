@@ -75,9 +75,13 @@ restart:
 		docker-compose restart; \
 	fi
 
-# Show status
-status:
+# Show ps
+ps:
 	docker-compose ps
+
+# Show stats
+stats:
+	docker-compose stats
 
 # Execute command in service container
 exec:

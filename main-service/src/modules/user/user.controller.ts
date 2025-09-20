@@ -8,69 +8,70 @@ import {
   Param,
   Body,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO } from './user.dto';
-import { JwtAuthGuard, CurrentUser, JwtUser } from 'shared-common';
+import { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AssignUserRolesDTO } from './user.dto';
+import { JwtAuthGuard, RolePermission, DOMAINS, PaginationParamsDto, GatewayRoleGuard } from 'shared-common';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('username/:username')
-  async findByUsername(@Param('username') username: string) {
-    return this.userService.findByUsername(username);
+  @Get()
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.VIEW)
+  findPaginatedUsers(@Query() params: PaginationParamsDto) {
+    return this.userService.findPaginatedUsers(params);
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
-    return this.userService.findById(id);
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.VIEW)
+  async getUserById(@Param('id') id: string) {
+    const user = await this.userService.findById(id);
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDTO) {
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.CREATE)
+  createUser(@Body() createUserDto: CreateUserDTO) {
     return this.userService.createUser(createUserDto);
   }
 
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDTO,
-    @CurrentUser() user: JwtUser
-  ) {
-    // Only allow users to update their own profile
-    if (user.id !== id) {
-      throw new Error('Forbidden');
-    }
-    return this.userService.updateUser(id, updateUserDto);
-  }
-
-  @Patch(':id/last-login')
-  async updateLastLogin(@Param('id') id: string) {
-    return this.userService.updateLastLogin(id);
-  }
-
   @Patch(':id/change-password')
+  @UseGuards(JwtAuthGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.CHANGE_PASSWORD)
   async changePassword(
     @Param('id') id: string,
-    @Body() changePasswordDto: ChangePasswordDTO,
-    @CurrentUser() user: JwtUser
+    @Body() changePasswordDto: ChangePasswordDTO
   ) {
-    // Only allow users to change their own password
-    if (user.id !== id) {
-      throw new Error('Forbidden');
-    }
-    return this.userService.changePassword(id, changePasswordDto);
+    await this.userService.changePassword(id, changePasswordDto);
+    return { message: 'Password changed successfully' };
   }
 
-  @Delete(':id')
-  async delete(@Param('id') id: string, @CurrentUser() user: JwtUser) {
-    // Only allow users to delete their own account
-    if (user.id !== id) {
-      throw new Error('Forbidden');
-    }
-    return this.userService.deleteUser(id);
+  @Patch(':id/assign-roles')
+  @UseGuards(JwtAuthGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.ASSIGN_ROLE)
+  async assignUserRoles(
+    @Param('id') id: string,
+    @Body() assignUserRolesDto: AssignUserRolesDTO
+  ) {
+    await this.userService.updateUserRoles(id, assignUserRolesDto);
+    return { message: 'Assign roles successfully' };
   }
 
+  @Put(':id')
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard)
+  @RolePermission(DOMAINS.USERS.value, DOMAINS.USERS.actions.EDIT)
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDTO
+  ) {
+    await this.userService.updateUser(id, updateUserDto);
+    return { message: 'Update user successfully' };
+  }
 }

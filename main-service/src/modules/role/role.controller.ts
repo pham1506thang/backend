@@ -38,6 +38,13 @@ export class RoleController {
     return this.roleService.findAllSummary();
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard)
+  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.VIEW)
+  async getRoleById(@Param('id') id: string) {
+    return this.roleService.findById(id);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard)
   @RolePermission(DOMAINS.ROLES.value, 'create')

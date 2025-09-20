@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MediasModule } from './modules/medias/medias.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
-import { UserPermissionGatewayModule, MediasMicroserviceModule } from 'shared-common';
+import { UserPermissionGatewayModule, MediasMicroserviceModule, JwtAuthModule } from 'shared-common';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import { UserPermissionGatewayModule, MediasMicroserviceModule } from 'shared-co
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    JwtAuthModule,
     MediasMicroserviceModule,
     MediasModule,
     QueueModule,

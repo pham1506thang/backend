@@ -17,6 +17,13 @@ export class RoleRepository extends BaseRepository<Role> {
     super(repo);
   }
 
+  async findById(id: string): Promise<Role | null> {
+    return this.repository.findOne({
+      where: { id },
+      relations: ['permissions'],
+    });
+  }
+
   async findWithPagination(
     params: PaginationParamsDto & { searchFields?: string[] }
   ): Promise<PaginationResult<Role>> {

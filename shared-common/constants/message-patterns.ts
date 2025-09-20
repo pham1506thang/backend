@@ -14,6 +14,11 @@ export const USER_MESSAGE_PATTERNS = {
   USER_ROLE_REMOVED: 'user.roleRemoved',
 } as const;
 
+export const PERMISSION_CHECK_MESSAGE_PATTERNS = {
+  FIND_BY_ID_WITH_PERMISSIONS: 'permission-check.findByIdWithPermissions',
+  INVALIDATE_PERMISSION_CACHE: 'permission-check.invalidatePermissionCache',
+} as const;
+
 export const AUTH_MESSAGE_PATTERNS = {
   // Auth operations
   VALIDATE_USER: 'auth.validateUser',

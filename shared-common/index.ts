@@ -42,6 +42,7 @@ export * from './services/user-permission.service';
 export * from './modules/user-permission-gateway.module';
 export * from './modules/growthbook/growthbook.module';
 export * from './modules/growthbook/growthbook.service';
+export * from './modules/jwt-auth/jwt-auth.module';
 export * from './modules/microservice/main-service.module';
 export * from './modules/microservice/auth-service.module';
 export * from './modules/microservice/medias-service.module';

@@ -21,8 +21,7 @@
     "setup:admin": "ts-node -r tsconfig-paths/register src/migrations/setup-admin.ts"
   },
   "dependencies": {
-    "shared-common": "1.0.0",
-    "@nestjs/jwt": "^11.0.0"
+    "shared-common": "1.0.0"
   },
   "jest": {
     "moduleFileExtensions": [

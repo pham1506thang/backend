@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleModule } from './modules/role/role.module';
 import { UserModule } from './modules/user/user.module';
 import { HealthModule } from './modules/health/health.module';
-import { GrowthBookModule } from 'shared-common';
+import { GrowthBookModule, JwtAuthModule } from 'shared-common';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import { GrowthBookModule } from 'shared-common';
       entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    JwtAuthModule,
     RoleModule,
     UserModule,
     HealthModule,

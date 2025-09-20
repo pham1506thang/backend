@@ -38,7 +38,14 @@ export class RoleService {
   }
 
   async findById(id: string) {
-    return this.roleRepository.findById(id);
+    const role = await this.roleRepository.findById(id);
+    if (!role) {
+      throw new NotFoundException({
+        message: 'Không tìm thấy vai trò',
+        details: { id: ['Không tìm thấy vai trò'] },
+      });
+    }
+    return role;
   }
 
   async findByIds(ids: string[]) {
@@ -76,10 +83,7 @@ export class RoleService {
   }
 
   async update(id: string, dto: UpdateRoleDTO) {
-    const role = await this.roleRepository.findById(id);
-    if (!role) {
-      throw new NotFoundException('Role not found');
-    }
+    const role = await this.findById(id);
     let permissions: Permission[] = role.permissions;
     if (dto.permissions && dto.permissions.length > 0) {
       permissions = await this.permissionRepository.findByIds(dto.permissions);
@@ -96,10 +100,7 @@ export class RoleService {
   }
 
   async remove(id: string) {
-    const role = await this.roleRepository.findById(id);
-    if (!role) {
-      throw new NotFoundException('Role not found');
-    }
+    const role = await this.findById(id);
 
     const result = await this.roleRepository.softDeleteById(id);
     

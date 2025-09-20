@@ -10,12 +10,6 @@ export interface PermissionCheckRequest {
   domain: string;
 }
 
-export interface PermissionCheckResponse {
-  hasPermission: boolean;
-  isSuperAdmin: boolean;
-  cached: boolean;
-}
-
 @Injectable()
 export class PermissionCheckService {
   constructor(
@@ -26,14 +20,15 @@ export class PermissionCheckService {
 
   async checkPermission(
     request: PermissionCheckRequest
-  ): Promise<PermissionCheckResponse> {
+  ): Promise<boolean> {
     const { userId, action, domain } = request;
     const cacheKey = `user_permissions:${userId}`;
 
     // Try to get from cache first
     let userPermissions = (await this.cacheService.get(cacheKey)) as any;
 
-    if (!userPermissions) {
+    // TODO: Remove this after testing
+    if (!userPermissions || true) {
       // If not in cache, fetch from main service
       try {
         userPermissions = await firstValueFrom(
@@ -49,26 +44,16 @@ export class PermissionCheckService {
           'Error fetching user permissions from main service:',
           error
         );
-        return {
-          hasPermission: false,
-          cached: false,
-          isSuperAdmin: false,
-        };
+        return false;
       }
     }
 
     // Check if user has the required permission
-    const hasPermission = this.hasUserPermission(
+    return this.hasUserPermission(
       userPermissions,
       action,
       domain
     );
-
-    return {
-      hasPermission,
-      cached: !!userPermissions,
-      isSuperAdmin: userPermissions.roles.some(role => role.isSuperAdmin),
-    };
   }
 
   async invalidateUserCache(userId: string): Promise<void> {

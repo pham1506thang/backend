@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from './user.entity';
 import { PaginationParamsDto } from 'shared-common';
@@ -38,11 +39,25 @@ export class UserService {
   }
 
   async findById(id: string) {
-    return this.userRepository.findById(id);
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new NotFoundException({
+        message: 'Không tìm thấy người dùng',
+        details: { id: ['Không tìm thấy người dùng'] },
+      });
+    }
+    return user;
   }
 
   async findByIdWithPermissions(id: string) {
-    return this.userRepository.findByIdWithPermissions(id);
+    const user = await this.userRepository.findByIdWithPermissions(id);
+    if (!user) {
+      throw new NotFoundException({
+        message: 'Không tìm thấy người dùng',
+        details: { id: ['Không tìm thấy người dùng'] },
+      });
+    }
+    return user;
   }
 
   async createUser(dto: CreateUserDTO): Promise<User> {
@@ -80,6 +95,15 @@ export class UserService {
   }
 
   async updateUser(id: string, dto: UpdateUserDTO): Promise<User | null> {
+    // Check if user exists first
+    const existingUser = await this.userRepository.findById(id);
+    if (!existingUser) {
+      throw new NotFoundException({
+        message: 'Không tìm thấy người dùng',
+        details: { id: ['Không tìm thấy người dùng'] },
+      });
+    }
+    
     // Remove roles from dto as it should be handled separately
     const { roles, ...updateData } = dto as any;
     await this.userRepository.update(id, updateData);
@@ -93,7 +117,10 @@ export class UserService {
     // Find the user first
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new UnauthorizedException('Không tìm thấy người dùng');
+      throw new NotFoundException({
+        message: 'Không tìm thấy người dùng',
+        details: { id: ['Không tìm thấy người dùng'] },
+      });
     }
 
     if (!dto.roles || dto.roles.length === 0) {
@@ -116,13 +143,17 @@ export class UserService {
   }
 
   async updateLastLogin(id: string) {
-    return this.userRepository.updateLastLogin(id);
+    await this.userRepository.updateLastLogin(id);
+    return { success: true, message: 'Last login updated successfully' };
   }
 
   async changePassword(userId: string, dto: ChangePasswordDTO) {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('Không tìm thấy người dùng');
+      throw new NotFoundException({
+        message: 'Không tìm thấy người dùng',
+        details: { id: ['Không tìm thấy người dùng'] },
+      });
     }
 
     // Verify current password
