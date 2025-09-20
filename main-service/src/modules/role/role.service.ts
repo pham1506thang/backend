@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RoleRepository } from './role.repository';
 import { PermissionRepository } from './permission.repository';
-import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
+import { CreateRoleDTO, UpdateRoleDTO, AssignPermissionDTO } from './role.dto';
 import _ from 'lodash';
-import { ActionType, DomainType } from 'shared-common';
-import { Permission } from './permission.entity';
+import { ActionType, DomainType } from 'shared-common'; 
 import { SummaryRole } from './role.interface';
 import {
   PaginationParamsDto,
@@ -68,15 +67,11 @@ export class RoleService {
   }
 
   async create(dto: CreateRoleDTO) {
-    let permissions: Permission[] = [];
-    if (dto.permissions.length > 0) {
-      permissions = await this.permissionRepository.findByIds(dto.permissions);
-    }
     // Ensure isAdmin is false when creating through API
     const role = await this.roleRepository.create({
       ...dto,
       isAdmin: false,
-      permissions,
+      permissions: [],
     });
     
     return role;
@@ -84,16 +79,11 @@ export class RoleService {
 
   async update(id: string, dto: UpdateRoleDTO) {
     const role = await this.findById(id);
-    let permissions: Permission[] = role.permissions;
-    if (dto.permissions && dto.permissions.length > 0) {
-      permissions = await this.permissionRepository.findByIds(dto.permissions);
-    }
     const updatedRole = await this.roleRepository.update(id, {
       ...dto,
       isAdmin: role.isAdmin,
       isSuperAdmin: role.isSuperAdmin,
       isProtected: role.isProtected,
-      permissions,
     });
     
     return updatedRole;
@@ -105,5 +95,18 @@ export class RoleService {
     const result = await this.roleRepository.softDeleteById(id);
     
     return result;
+  }
+
+  async assignPermissions(id: string, dto: AssignPermissionDTO) {
+    const role = await this.findById(id);
+    const permissions = await this.permissionRepository.findByIds(dto.permissions);
+    const updatedRole = await this.roleRepository.update(id, {
+      permissions,
+      isAdmin: role.isAdmin,
+      isSuperAdmin: role.isSuperAdmin,
+      isProtected: role.isProtected,
+    });
+    
+    return updatedRole;
   }
 }

@@ -8,9 +8,10 @@ import {
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { CreateRoleDTO, UpdateRoleDTO } from './role.dto';
+import { CreateRoleDTO, UpdateRoleDTO, AssignPermissionDTO } from './role.dto';
 import { DOMAINS } from 'shared-common';
 import {
   RolePermission,
@@ -47,22 +48,29 @@ export class RoleController {
 
   @Post()
   @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard)
-  @RolePermission(DOMAINS.ROLES.value, 'create')
+  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.CREATE)
   create(@Body() body: CreateRoleDTO) {
     return this.roleService.create(body);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard, ProtectedRoleGuard)
-  @RolePermission(DOMAINS.ROLES.value, 'update')
+  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.EDIT)
   update(@Param('id') id: string, @Body() body: UpdateRoleDTO) {
     return this.roleService.update(id, body);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, GatewayRoleGuard, ProtectedRoleGuard)
-  @RolePermission(DOMAINS.ROLES.value, 'delete')
+  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.DELETE)
   remove(@Param('id') id: string) {
     return this.roleService.remove(id);
+  }
+
+  @Patch(':id/assign-permissions')
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard)
+  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.ASSIGN_PERMISSION)
+  assignPermissions(@Param('id') id: string, @Body() body: AssignPermissionDTO) {
+    return this.roleService.assignPermissions(id, body);
   }
 }

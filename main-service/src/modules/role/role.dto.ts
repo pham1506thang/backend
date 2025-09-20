@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
@@ -26,9 +26,18 @@ export class CreateRoleDTO {
 
   @IsArray()
   @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => String)
+  @IsString({ each: true })
   permissions: string[];
 }
 
-export class UpdateRoleDTO extends PartialType(CreateRoleDTO) {}
+export class UpdateRoleDTO extends OmitType(CreateRoleDTO, [
+  'code',
+  'permissions',
+]) {}
+
+export class AssignPermissionDTO {
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  permissions: string[];
+}
