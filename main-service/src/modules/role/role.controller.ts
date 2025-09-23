@@ -53,6 +53,13 @@ export class RoleController {
     return this.roleService.create(body);
   }
 
+  @Patch(':id/assign-permissions')
+  @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard)
+  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.ASSIGN_PERMISSION)
+  assignPermissions(@Param('id') id: string, @Body() body: AssignPermissionDTO) {
+    return this.roleService.assignPermissions(id, body);
+  }
+
   @Put(':id')
   @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard, ProtectedRoleGuard)
   @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.EDIT)
@@ -65,12 +72,5 @@ export class RoleController {
   @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.DELETE)
   remove(@Param('id') id: string) {
     return this.roleService.remove(id);
-  }
-
-  @Patch(':id/assign-permissions')
-  @UseGuards(JwtAuthGuard, GatewayRoleGuard, AdminRoleGuard)
-  @RolePermission(DOMAINS.ROLES.value, DOMAINS.ROLES.actions.ASSIGN_PERMISSION)
-  assignPermissions(@Param('id') id: string, @Body() body: AssignPermissionDTO) {
-    return this.roleService.assignPermissions(id, body);
   }
 }

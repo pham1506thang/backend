@@ -2,11 +2,11 @@
 
 ## 🎯 Overview
 
-Microservice quản lý media files với focus vào images, hỗ trợ multiple sizes, versioning structure, và search/filter capabilities. Được thiết kế để sẵn sàng cho S3 migration trong tương lai.
+Microservice quản lý media files với focus vào images, hỗ trợ multiple sizes và search/filter capabilities. Được thiết kế để sẵn sàng cho S3 migration trong tương lai.
 
-## ✅ Implementation Status: COMPLETED
+## ✅ Implementation Status: REFACTORED & CLEANED
 
-Tất cả các phases đã được hoàn thành thành công theo kế hoạch ban đầu.
+Đã refactor medias service với cấu trúc 3 controllers riêng biệt, loại bỏ code trùng lặp và tách riêng shared functionality.
 
 ## 🏗️ Architecture
 
@@ -20,33 +20,115 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 
 - **Auth Service**: JWT verification
 - **Main Service**: User data lookup
-- **RabbitMQ**: Async processing
-- **WebSocket**: Real-time updates
 
-## Phase 1 - Core Setup ✅ COMPLETED
+### Controller Architecture (Refactored)
+
+#### 1. SharedMediasController (Cross-category)
+- **Route**: `/medias`
+- **Purpose**: Cross-category operations với gateway permissions
+- **Service**: SharedMediaService
+- **Endpoints**:
+  - `GET /medias/search` - Search across all media
+  - `GET /medias/filter` - Filter across categories
+  - `GET /medias/tags` - Get all tags
+  - `GET /medias/by-tag/:tagName` - Get media by tag
+  - `GET /medias/:id/file` - Serve file (any category)
+  - `GET /medias/:id/file/:size` - Serve specific size (any category)
+
+#### 2. ProfileMediasController
+- **Route**: `/medias/profile`
+- **Purpose**: Profile image specific operations (user isolation)
+- **Service**: ProfileMediaService
+- **Endpoints**:
+  - `POST /medias/profile/upload` - Upload profile image
+  - `POST /medias/profile/upload-multiple` - Upload multiple profile images
+  - `GET /medias/profile` - List user's profile images
+  - `GET /medias/profile/:id` - Get profile image details
+  - `GET /medias/profile/:id/sizes` - Get profile image sizes
+  - `PUT /medias/profile/:id` - Update profile image
+  - `DELETE /medias/profile/:id` - Delete profile image
+  - `GET /medias/profile/search` - Search profile images
+  - `GET /medias/profile/filter` - Filter profile images
+  - `GET /medias/profile/by-tag/:tagName` - Get profile images by tag
+  - `GET /medias/profile/:id/file` - Serve profile image
+  - `GET /medias/profile/:id/file/:size` - Serve profile image size
+
+#### 3. GeneralMediasController
+- **Route**: `/medias/general`
+- **Purpose**: General image specific operations với gateway permissions
+- **Service**: GeneralMediaService
+- **Endpoints**:
+  - `POST /medias/general/upload` - Upload general image
+  - `POST /medias/general/upload-multiple` - Upload multiple general images
+  - `GET /medias/general` - List general images
+  - `GET /medias/general/:id` - Get general image details
+  - `GET /medias/general/:id/sizes` - Get general image sizes
+  - `PUT /medias/general/:id` - Update general image
+  - `DELETE /medias/general/:id` - Delete general image
+  - `GET /medias/general/search` - Search general images
+  - `GET /medias/general/filter` - Filter general images
+  - `GET /medias/general/by-tag/:tagName` - Get general images by tag
+  - `GET /medias/general/:id/file` - Serve general image
+  - `GET /medias/general/:id/file/:size` - Serve general image size
+
+## Phase 1 - Core Setup ✅ REFACTORED
 
 ### Đã implement:
 
-- ✅ Module structure (medias module, controller, service)
-- ✅ Database entities: Media, MediaVersion, MediaSize, MediaTag
-- ✅ Basic file upload với local storage
-- ✅ CRUD operations cho media
-- ✅ File organization structure cho versioning
-- ✅ Basic search và filter endpoints
+- ✅ Module structure (3 controllers, 3 services)
+- ✅ Database entities: Media, MediaSize, MediaTag với relationships
+- ✅ File upload với local storage và date-based organization
+- ✅ CRUD operations cho media với category separation
+- ✅ File organization structure theo cấu trúc ngày (year/month/mediaId)
+- ✅ Search và filter endpoints với cross-category support
+
+### Cấu trúc mới (Refactored):
+
+- ✅ **SharedMediasController**: Cross-category operations với gateway permissions
+- ✅ **ProfileMediasController**: Profile images với user isolation (không cần gateway permission)
+- ✅ **GeneralMediasController**: General images với gateway permissions
+- ✅ **SharedMediaService**: Shared logic cho cross-category operations
+- ✅ **ProfileMediaService**: Logic riêng cho profile images
+- ✅ **GeneralMediaService**: Logic riêng cho general images
+- ✅ **StoragePathUtil**: Utility cho date-based file organization
+- ✅ **IMAGE_SIZES**: Constants chung cho tất cả image sizes
+- ✅ **MEDIA_CATEGORIES, MEDIA_FILE_TYPES**: Constants cho enum values
 
 ### API Endpoints đã có:
 
-- `POST /medias/upload` - Upload single file
-- `GET /medias` - List với pagination, search, filter
-- `GET /medias/:id` - Get media details
-- `PUT /medias/:id` - Update metadata
-- `DELETE /medias/:id` - Soft delete media
-- `GET /medias/:id/file` - Get file URL
-- `GET /medias/:id/file/:size` - Get file URL by size
-- `GET /medias/:id/sizes` - Get available sizes
-- `GET /medias/search` - Search media by query
-- `GET /medias/filter` - Advanced filtering
+#### Cross-category Operations (`/medias`)
+- `GET /medias/search` - Search across all media
+- `GET /medias/filter` - Filter across categories
 - `GET /medias/tags` - Get all available tags
+- `GET /medias/by-tag/:tagName` - Get media by tag
+- `GET /medias/:id/file` - Serve any file
+- `GET /medias/:id/file/:size` - Serve specific size
+
+#### Profile Operations (`/medias/profile`)
+- `POST /medias/profile/upload` - Upload profile image
+- `POST /medias/profile/upload-multiple` - Upload multiple profile images
+- `GET /medias/profile` - List user's profile images
+- `GET /medias/profile/:id` - Get profile image details
+- `PUT /medias/profile/:id` - Update profile image
+- `DELETE /medias/profile/:id` - Delete profile image
+- `GET /medias/profile/search` - Search profile images
+- `GET /medias/profile/filter` - Filter profile images
+- `GET /medias/profile/by-tag/:tagName` - Get profile images by tag
+- `GET /medias/profile/:id/file` - Serve profile image
+- `GET /medias/profile/:id/file/:size` - Serve profile image size
+
+#### General Operations (`/medias/general`)
+- `POST /medias/general/upload` - Upload general image
+- `POST /medias/general/upload-multiple` - Upload multiple general images
+- `GET /medias/general` - List general images
+- `GET /medias/general/:id` - Get general image details
+- `PUT /medias/general/:id` - Update general image
+- `DELETE /medias/general/:id` - Delete general image
+- `GET /medias/general/search` - Search general images
+- `GET /medias/general/filter` - Filter general images
+- `GET /medias/general/by-tag/:tagName` - Get general images by tag
+- `GET /medias/general/:id/file` - Serve general image
+- `GET /medias/general/:id/file/:size` - Serve general image size
 
 ## Phase 2 - Image Processing ✅ COMPLETED
 
@@ -59,6 +141,7 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 - ✅ Metadata extraction (EXIF data)
 - ✅ Watermarking support
 - ✅ Image validation và security checks
+- ✅ **Refactored**: Sử dụng IMAGE_SIZES constants chung
 
 ### Supported Formats:
 
@@ -66,27 +149,7 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 - **Output**: JPEG, PNG, WebP
 - **Sizes**: thumbnail (150x150), small (300x300), medium (600x600), large (1200x1200), original
 
-## Phase 3 - Versioning System ✅ COMPLETED
-
-### Đã implement:
-
-- ✅ MediaVersion entity cho version tracking
-- ✅ Version management API endpoints
-- ✅ Version comparison và rollback
-- ✅ Version history tracking
-- ✅ Automatic version creation on updates
-- ✅ Version-based file serving
-
-### Version Management:
-
-- `POST /medias/:id/versions` - Create new version
-- `GET /medias/:id/versions` - List all versions
-- `GET /medias/:id/versions/:versionId` - Get specific version
-- `PUT /medias/:id/versions/:versionId` - Update version
-- `DELETE /medias/:id/versions/:versionId` - Delete version
-- `POST /medias/:id/versions/:versionId/rollback` - Rollback to version
-
-## Phase 4 - Search & Filter ✅ COMPLETED
+## Phase 3 - Search & Filter ✅ COMPLETED
 
 ### Đã implement:
 
@@ -96,6 +159,7 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 - ✅ Pagination với cursor-based approach
 - ✅ Search suggestions và autocomplete
 - ✅ Search analytics và logging
+- ✅ **Refactored**: Cross-category search trong SharedMediaService
 
 ### Search Features:
 
@@ -104,26 +168,7 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 - **Sorting**: created_at, updated_at, file_size, filename
 - **Pagination**: limit, offset, cursor-based
 
-## Phase 5 - Async Processing ✅ COMPLETED
-
-### Đã implement:
-
-- ✅ RabbitMQ integration cho async processing
-- ✅ Background job processing
-- ✅ Progress tracking và status updates
-- ✅ WebSocket real-time updates
-- ✅ Error handling và retry logic
-- ✅ Queue management và monitoring
-
-### Async Features:
-
-- **Upload Processing**: Background image processing
-- **Bulk Operations**: Multiple file processing
-- **Real-time Updates**: WebSocket progress updates
-- **Error Recovery**: Automatic retry on failures
-- **Queue Monitoring**: RabbitMQ management interface
-
-## Phase 6 - Security & Permissions ✅ COMPLETED
+## Phase 4 - Security & Permissions ✅ COMPLETED
 
 ### Đã implement:
 
@@ -133,13 +178,14 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 - ✅ Upload restrictions và validation
 - ✅ Security headers và CORS
 - ✅ Rate limiting và abuse prevention
+- ✅ **Refactored**: User isolation cho profile images
 
 ### Security Features:
 
 - **Authentication**: JWT token verification
 - **Authorization**: Role-based permissions
 - **File Validation**: Type, size, content validation
-- **Access Control**: User-specific file access
+- **Access Control**: User-specific file access cho profile images
 - **Rate Limiting**: Upload rate restrictions
 
 ## 🗄️ Database Schema
@@ -150,53 +196,47 @@ Tất cả các phases đã được hoàn thành thành công theo kế hoạch
 -- Media files metadata
 CREATE TABLE media (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  filename VARCHAR(255) NOT NULL,
   original_name VARCHAR(255) NOT NULL,
+  filename VARCHAR(255) UNIQUE NOT NULL,
   mime_type VARCHAR(100) NOT NULL,
-  file_size BIGINT NOT NULL,
+  file_type VARCHAR(20) NOT NULL,
+  category VARCHAR(20) NOT NULL DEFAULT 'general',
   file_path TEXT NOT NULL,
-  file_extension VARCHAR(10) NOT NULL,
-  processing_status VARCHAR(20) DEFAULT 'pending',
+  size BIGINT NOT NULL,
+  width INTEGER,
+  height INTEGER,
+  uploader_id UUID NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
   metadata JSONB,
-  user_id UUID NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   deleted_at TIMESTAMP NULL
-);
-
--- Media versioning
-CREATE TABLE media_version (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  media_id UUID NOT NULL REFERENCES media(id) ON DELETE CASCADE,
-  version VARCHAR(20) NOT NULL,
-  is_current BOOLEAN DEFAULT FALSE,
-  file_path TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Multiple file sizes
 CREATE TABLE media_size (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   media_id UUID NOT NULL REFERENCES media(id) ON DELETE CASCADE,
-  size VARCHAR(20) NOT NULL,
+  size_name VARCHAR(20) NOT NULL,
+  filename VARCHAR(255) NOT NULL,
   file_path TEXT NOT NULL,
-  width INTEGER,
-  height INTEGER,
-  created_at TIMESTAMP DEFAULT NOW()
+  width INTEGER NOT NULL,
+  height INTEGER NOT NULL,
+  size BIGINT NOT NULL,
+  quality INTEGER,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(media_id, size_name)
 );
 
 -- Media tags
 CREATE TABLE media_tag (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(100) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Media-Tag mapping
-CREATE TABLE media_tags_media (
   media_id UUID NOT NULL REFERENCES media(id) ON DELETE CASCADE,
-  media_tag_id UUID NOT NULL REFERENCES media_tag(id) ON DELETE CASCADE,
-  PRIMARY KEY (media_id, media_tag_id)
+  tag_name VARCHAR(100) NOT NULL,
+  tag_value VARCHAR(255) NOT NULL,
+  created_by UUID NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(media_id, tag_name, tag_value)
 );
 ```
 
@@ -252,7 +292,7 @@ AUTH_SERVICE_URL=http://localhost:3002
 - **Compression**: 60-80% size reduction
 - **Format Optimization**: WebP for web, JPEG for compatibility
 - **Multiple Sizes**: 5 sizes per image
-- **Versioning**: Incremental storage for versions
+- **Date-based Organization**: Efficient file management
 
 ## 🔧 Maintenance
 
@@ -293,10 +333,18 @@ AUTH_SERVICE_URL=http://localhost:3002
 ### Design Decisions
 
 1. **Database Separation**: Medias service có database riêng để tách biệt concerns
-2. **Async Processing**: RabbitMQ cho background processing
-3. **Real-time Updates**: WebSocket cho progress tracking
-4. **Versioning System**: Complete version management
+2. **Controller Separation**: 3 controllers riêng biệt cho từng loại operations
+3. **Shared Services**: SharedMediaService cho cross-category operations
+4. **User Isolation**: Profile images chỉ accessible bởi owner
 5. **Security First**: JWT integration và role-based access
+
+### Refactoring Changes
+
+- **Removed**: MediasController và MediasService (có lỗi và trùng lặp)
+- **Added**: SharedMediasController và SharedMediaService
+- **Improved**: Code reusability và maintainability
+- **Fixed**: ImageProcessingService sử dụng constants chung
+- **Cleaned**: Loại bỏ unused files và code duplication
 
 ### Technical Debt
 
@@ -307,15 +355,14 @@ AUTH_SERVICE_URL=http://localhost:3002
 
 ## ✅ Completion Status
 
-- [x] Phase 1: Core Setup
-- [x] Phase 2: Image Processing
-- [x] Phase 3: Versioning System
-- [x] Phase 4: Search & Filter
-- [x] Phase 5: Async Processing
-- [x] Phase 6: Security & Permissions
+- [x] Phase 1: Core Setup (Refactored)
+- [x] Phase 2: Image Processing (Fixed constants usage)
+- [x] Phase 3: Search & Filter (Refactored)
+- [x] Phase 4: Security & Permissions (Enhanced)
 - [x] Database Separation
 - [x] Service Communication
 - [x] Docker Configuration
 - [x] Documentation
+- [x] Code Refactoring & Cleanup
 
-**Status**: ✅ **FULLY IMPLEMENTED AND DEPLOYED**
+**Status**: ✅ **FULLY IMPLEMENTED, REFACTORED AND CLEANED**

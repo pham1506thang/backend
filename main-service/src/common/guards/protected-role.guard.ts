@@ -25,7 +25,10 @@ export class ProtectedRoleGuard implements CanActivate {
     }
 
     const targetRole = await this.roleService.findById(roleId);
-    const userRoles = await this.roleService.findByIds(user.roles);
+    
+    // Ensure user.roles is an array
+    const userRoleIds = Array.isArray(user.roles) ? user.roles : [];
+    const userRoles = userRoleIds.length > 0 ? await this.roleService.findByIds(userRoleIds) : [];
 
     // Check if user has any admin role
     const hasAdminRole = userRoles.some(role => role.isAdmin);
@@ -33,7 +36,7 @@ export class ProtectedRoleGuard implements CanActivate {
     // If user has admin role
     if (hasAdminRole) {
       // Admin cannot modify their own roles
-      if (user.roles.includes(roleId)) {
+      if (userRoleIds.includes(roleId)) {
         throw new ForbiddenException('Admin cannot modify their own role');
       }
       return true;

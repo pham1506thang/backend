@@ -5,11 +5,11 @@ import {
   IsNumber,
   IsBoolean,
   IsObject,
-  IsUUID,
   Min,
   Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { MEDIA_FILE_TYPES, MEDIA_CATEGORIES } from '../../../common/constants/image-sizes';
 
 export class CreateMediaDto {
   @IsString()
@@ -21,8 +21,8 @@ export class CreateMediaDto {
   @IsString()
   mimeType: string;
 
-  @IsEnum(['image', 'audio', 'video', 'document', 'other'])
-  fileType: 'image' | 'audio' | 'video' | 'document' | 'other';
+  @IsEnum(Object.values(MEDIA_FILE_TYPES))
+  fileType: typeof MEDIA_FILE_TYPES[keyof typeof MEDIA_FILE_TYPES];
 
   @IsNumber()
   @Min(0)
@@ -62,7 +62,8 @@ export class MediaResponseDto {
   originalName: string;
   fileName: string;
   mimeType: string;
-  fileType: 'image' | 'audio' | 'video' | 'document' | 'other';
+  fileType: typeof MEDIA_FILE_TYPES[keyof typeof MEDIA_FILE_TYPES];
+  category: typeof MEDIA_CATEGORIES[keyof typeof MEDIA_CATEGORIES];
   size: number;
   width?: number;
   height?: number;
@@ -79,8 +80,16 @@ export class MediaListQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsEnum(['image', 'audio', 'video'])
-  fileType?: 'image' | 'audio' | 'video';
+  @IsEnum(Object.values(MEDIA_CATEGORIES))
+  category?: typeof MEDIA_CATEGORIES[keyof typeof MEDIA_CATEGORIES];
+
+  @IsOptional()
+  @IsEnum(Object.values(MEDIA_FILE_TYPES))
+  fileType?: typeof MEDIA_FILE_TYPES[keyof typeof MEDIA_FILE_TYPES];
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 
   @IsOptional()
   @IsString()
@@ -97,6 +106,14 @@ export class MediaListQueryDto {
   @IsOptional()
   @IsString()
   tagValue?: string;
+
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @IsOptional()
+  @IsEnum(['ASC', 'DESC'])
+  sortOrder?: 'ASC' | 'DESC';
 
   @IsOptional()
   @Type(() => Number)

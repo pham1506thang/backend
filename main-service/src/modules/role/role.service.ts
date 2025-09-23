@@ -67,11 +67,30 @@ export class RoleService {
   }
 
   async create(dto: CreateRoleDTO) {
+    const existingRole = await this.roleRepository.findOne({ code: dto.code });
+    if (existingRole) {
+      throw new NotFoundException({
+        message: 'Mã vai trò đã tồn tại',
+        details: { code: ['Mã vai trò đã tồn tại'] },
+      });
+    }
+    
+    const permissions = await this.permissionRepository.findByIds(dto.permissions);
+    
+    if (permissions.length !== dto.permissions.length) {
+      const foundIds = permissions.map(p => p.id);
+      const missingIds = dto.permissions.filter(id => !foundIds.includes(id));
+      throw new NotFoundException({
+        message: 'Một số quyền không tồn tại',
+        details: { permissions: missingIds },
+      });
+    }
+    
     // Ensure isAdmin is false when creating through API
     const role = await this.roleRepository.create({
       ...dto,
       isAdmin: false,
-      permissions: [],
+      permissions,
     });
     
     return role;
@@ -90,22 +109,37 @@ export class RoleService {
   }
 
   async remove(id: string) {
-    const role = await this.findById(id);
+    await this.roleRepository.delete(id);
 
-    const result = await this.roleRepository.softDeleteById(id);
-    
-    return result;
+    return { message: 'Xóa vai trò thành công' };
   }
 
   async assignPermissions(id: string, dto: AssignPermissionDTO) {
     const role = await this.findById(id);
+    
+    // Check if role is protected
+    if (role.isProtected) {
+      throw new NotFoundException({
+        message: 'Không thể thay đổi quyền của vai trò được bảo vệ',
+        details: { id: ['Không thể thay đổi quyền của vai trò được bảo vệ'] },
+      });
+    }
+    
     const permissions = await this.permissionRepository.findByIds(dto.permissions);
-    const updatedRole = await this.roleRepository.update(id, {
-      permissions,
-      isAdmin: role.isAdmin,
-      isSuperAdmin: role.isSuperAdmin,
-      isProtected: role.isProtected,
-    });
+    
+    // Validate that all requested permissions exist
+    if (permissions.length !== dto.permissions.length) {
+      const foundIds = permissions.map(p => p.id);
+      const missingIds = dto.permissions.filter(id => !foundIds.includes(id));
+      throw new NotFoundException({
+        message: 'Một số quyền không tồn tại',
+        details: { permissions: missingIds },
+      });
+    }
+    
+    // Update permissions by assigning to the role entity and saving
+    role.permissions = permissions;
+    const updatedRole = await this.roleRepository.save(role);
     
     return updatedRole;
   }

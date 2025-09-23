@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { JwtUser } from '../interfaces/jwt-user.interface';
+import { JwtUser } from 'shared-common';
 
 @Injectable()
 export class AuthClientService {

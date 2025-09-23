@@ -64,9 +64,6 @@ RUN yarn install --production --frozen-lockfile && \
 COPY --from=builder /app/shared-common/dist ./shared-common/dist
 COPY --from=builder /app/medias-service/dist ./medias-service/dist
 
-# Create storage directories
-RUN mkdir -p /app/storage/medias /app/storage/profiles
-
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001 && \
@@ -76,5 +73,8 @@ USER nestjs
 
 WORKDIR /app/medias-service
 
+# Create storage directories after switching to non-root user
+RUN mkdir -p /app/storage/medias /app/storage/profiles
+
 # Start the application
-CMD ["dumb-init", "node", "dist/medias-service/src/main.js"]
+CMD ["dumb-init", "node", "dist/main.js"]

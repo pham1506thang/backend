@@ -120,6 +120,7 @@ export const DOMAINS = {
       MANAGE_GALLERIES: 'manage_galleries',
       MANAGE_FOLDERS: 'manage_folders',
       SET_PERMISSIONS: 'set_permissions',
+      ADMIN: 'admin',
     },
   },
   SETTINGS: {

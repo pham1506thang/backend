@@ -2,9 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MediasModule } from './modules/medias/medias.module';
-import { QueueModule } from './modules/queue/queue.module';
-import { WebSocketModule } from './modules/websocket/websocket.module';
-import { UserPermissionGatewayModule, MediasMicroserviceModule, JwtAuthModule } from 'shared-common';
+import { HealthModule } from './modules/health/health.module';
+import { MediasMicroserviceModule, JwtAuthModule } from 'shared-common';
 
 @Module({
   imports: [
@@ -24,9 +23,7 @@ import { UserPermissionGatewayModule, MediasMicroserviceModule, JwtAuthModule } 
     JwtAuthModule,
     MediasMicroserviceModule,
     MediasModule,
-    QueueModule,
-    WebSocketModule,
-    UserPermissionGatewayModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

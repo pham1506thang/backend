@@ -4,19 +4,19 @@ import {
   Column,
   CreateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Media } from './media.entity';
 
 @Entity('media_sizes')
-@Index(['mediaId', 'versionId', 'sizeName'], { unique: true }) // Unique size per version
+@Index(['mediaId', 'sizeName'], { unique: true }) // Unique size per media
 export class MediaSize {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'uuid' })
   mediaId: string;
-
-  @Column({ type: 'uuid' })
-  versionId: string;
 
   @Column({ type: 'varchar', length: 50 })
   sizeName: string; // 'thumbnail', 'small', 'medium', 'large', 'original'
@@ -42,12 +42,8 @@ export class MediaSize {
   @CreateDateColumn()
   createdAt: Date;
 
-  // Relationships - will be defined after other entities are created
-  // @ManyToOne(() => Media, media => media.sizes, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'mediaId' })
-  // media: Media;
-
-  // @ManyToOne(() => MediaVersion, version => version.sizes, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'versionId' })
-  // version: MediaVersion;
+  // Relationships
+  @ManyToOne(() => Media, (media) => media.sizes, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'mediaId' })
+  media: Media;
 }

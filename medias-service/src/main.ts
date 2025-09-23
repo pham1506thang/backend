@@ -5,7 +5,6 @@ async function bootstrap() {
   await BootstrapUtils.bootstrapHttpService(AppModule, {
     port: parseInt(process.env.MEDIAS_SERVICE_PORT),
     serviceName: '🚀 Medias Service',
-    globalPrefix: 'api/medias',
     enableHttpExceptionFilter: false, // Medias service doesn't use HttpExceptionFilter
   });
 

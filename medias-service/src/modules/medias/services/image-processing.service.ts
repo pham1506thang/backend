@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as sharp from 'sharp';
+import { IMAGE_SIZES } from '../../../common/constants/image-sizes';
 
 export interface ImageSizeConfig {
   width: number;
@@ -18,13 +19,6 @@ export interface ImageProcessingResult {
 
 @Injectable()
 export class ImageProcessingService {
-  private readonly imageSizes: Record<string, ImageSizeConfig> = {
-    thumbnail: { width: 150, height: 150, quality: 80, format: 'jpeg' },
-    small: { width: 300, height: 300, quality: 85, format: 'jpeg' },
-    medium: { width: 600, height: 600, quality: 90, format: 'jpeg' },
-    large: { width: 1200, height: 1200, quality: 95, format: 'jpeg' },
-    original: { quality: 100 },
-  };
 
   /**
    * Process image to generate multiple sizes
@@ -53,7 +47,7 @@ export class ImageProcessingService {
         continue;
       }
 
-      const config = this.imageSizes[sizeName];
+      const config = IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
       if (!config) {
         throw new Error(`Unknown size configuration: ${sizeName}`);
       }
@@ -70,33 +64,21 @@ export class ImageProcessingService {
    */
   private async resizeImage(
     inputBuffer: Buffer,
-    config: ImageSizeConfig
+    config: typeof IMAGE_SIZES[keyof typeof IMAGE_SIZES]
   ): Promise<ImageProcessingResult> {
     let sharpInstance = sharp(inputBuffer);
 
-    // Resize with smart cropping
-    sharpInstance = sharpInstance.resize(config.width, config.height, {
-      fit: 'cover',
-      position: 'center',
-    });
-
-    // Apply quality and format
-    if (config.format) {
-      switch (config.format) {
-        case 'jpeg':
-          sharpInstance = sharpInstance.jpeg({ quality: config.quality });
-          break;
-        case 'png':
-          sharpInstance = sharpInstance.png({ quality: config.quality });
-          break;
-        case 'webp':
-          sharpInstance = sharpInstance.webp({ quality: config.quality });
-          break;
-      }
-    } else {
-      // Keep original format but apply quality
-      sharpInstance = sharpInstance.jpeg({ quality: config.quality });
+    // Check if config has width and height (not original)
+    if ('width' in config && 'height' in config) {
+      // Resize with smart cropping
+      sharpInstance = sharpInstance.resize(config.width, config.height, {
+        fit: 'cover',
+        position: 'center',
+      });
     }
+
+    // Apply quality - use JPEG as default format
+    sharpInstance = sharpInstance.jpeg({ quality: config.quality });
 
     const buffer = await sharpInstance.toBuffer();
     const metadata = await sharp(buffer).metadata();
@@ -172,20 +154,13 @@ export class ImageProcessingService {
    * Get available size configurations
    */
   getAvailableSizes(): string[] {
-    return Object.keys(this.imageSizes);
+    return Object.keys(IMAGE_SIZES);
   }
 
   /**
    * Get size configuration
    */
-  getSizeConfig(sizeName: string): ImageSizeConfig | undefined {
-    return this.imageSizes[sizeName];
-  }
-
-  /**
-   * Update size configuration
-   */
-  updateSizeConfig(sizeName: string, config: ImageSizeConfig): void {
-    this.imageSizes[sizeName] = config;
+  getSizeConfig(sizeName: string): typeof IMAGE_SIZES[keyof typeof IMAGE_SIZES] | undefined {
+    return IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
   }
 }

@@ -4,7 +4,12 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { MEDIA_FILE_TYPES, MEDIA_CATEGORIES } from '../../../common/constants/image-sizes';
+import { MediaSize } from './media-size.entity';
+import { MediaTag } from './media-tag.entity';
 
 @Entity('medias')
 export class Media {
@@ -22,9 +27,19 @@ export class Media {
 
   @Column({
     type: 'enum',
-    enum: ['image', 'audio', 'video', 'document', 'other'],
+    enum: Object.values(MEDIA_FILE_TYPES),
   })
-  fileType: 'image' | 'audio' | 'video' | 'document' | 'other';
+  fileType: typeof MEDIA_FILE_TYPES[keyof typeof MEDIA_FILE_TYPES]; // focus on image first
+
+  @Column({
+    type: 'enum',
+    enum: Object.values(MEDIA_CATEGORIES),
+    default: MEDIA_CATEGORIES.GENERAL,
+  })
+  category: typeof MEDIA_CATEGORIES[keyof typeof MEDIA_CATEGORIES]; // general for images/, profile for profile/
+
+  @Column({ type: 'varchar', length: 500 })
+  filePath: string; // full path to file on storage
 
   @Column({ type: 'bigint' })
   size: number; // bytes
@@ -50,13 +65,13 @@ export class Media {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // Relationships - will be defined after other entities are created
-  // @OneToMany(() => MediaVersion, (version) => version.media)
-  // versions: MediaVersion[];
+  @DeleteDateColumn()
+  deletedAt?: Date;
 
-  // @OneToMany(() => MediaSize, (size) => size.media)
-  // sizes: MediaSize[];
+  // Relationships
+  @OneToMany(() => MediaSize, (size) => size.media, { cascade: true })
+  sizes: MediaSize[];
 
-  // @OneToMany(() => MediaTag, (tag) => tag.media)
-  // tags: MediaTag[];
+  @OneToMany(() => MediaTag, (tag) => tag.media, { cascade: true })
+  tags: MediaTag[];
 }

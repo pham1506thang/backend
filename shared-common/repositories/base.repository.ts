@@ -27,10 +27,12 @@ export class BaseRepository<T extends IBaseEntity> {
     return this.repository.findBy(filter);
   }
 
+  async findOne(filter: FindOptionsWhere<T>): Promise<T | null> {
+    return this.repository.findOneBy(filter);
+  }
+
   async findById(id: T['id']): Promise<T | null> {
-    return this.repository.findOne({
-      where: { id } as FindOptionsWhere<T>,
-    });
+    return this.findOne({ id } as FindOptionsWhere<T>);
   }
 
   async findByIds(ids: T['id'][]): Promise<T[]> {

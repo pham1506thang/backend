@@ -31,9 +31,7 @@ export class Role implements IBaseEntity {
   @Column({ default: false })
   isProtected: boolean;
 
-  @ManyToMany(() => Permission, permission => permission.roles, {
-    cascade: true,
-  })
+  @ManyToMany(() => Permission)
   @JoinTable({ name: 'role_permissions' })
   permissions: Permission[];
 

@@ -7,6 +7,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
+import { Media } from './media.entity';
 
 @Entity('media_tags')
 @Index(['mediaId', 'tagName', 'tagValue'], { unique: true }) // Unique tag per media
@@ -29,8 +30,8 @@ export class MediaTag {
   @CreateDateColumn()
   createdAt: Date;
 
-  // Relationships - will be defined after other entities are created
-  // @ManyToOne(() => Media, media => media.tags, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'mediaId' })
-  // media: Media;
+  // Relationships
+  @ManyToOne(() => Media, (media) => media.tags, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'mediaId' })
+  media: Media;
 }
