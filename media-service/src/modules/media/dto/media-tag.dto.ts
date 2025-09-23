@@ -8,14 +8,6 @@ export class CreateMediaTagDto {
   tagValue: string;
 }
 
-export class MediaTagResponseDto {
-  id: string;
-  mediaId: string;
-  tagName: string;
-  tagValue: string;
-  createdBy: string;
-  createdAt: Date;
-}
 
 export class MediaTagQueryDto {
   @IsOptional()

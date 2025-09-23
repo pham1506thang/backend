@@ -15,7 +15,7 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { GeneralMediaService } from '../services/general-media.service';
-import { MediaListQueryDto, UpdateMediaDto, MediaResponseDto } from '../dto';
+import { MediaListQueryDto, UpdateMediaDto, MediaResponseDto, MediaSizeResponseDto } from '../dto';
 import {
   CurrentUser,
   JwtUser,
@@ -67,7 +67,7 @@ export class GeneralMediaController {
 
   @Get(':id/sizes')
   @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.VIEW)
-  async getGeneralImageSizes(@Param('id') id: string): Promise<{ sizes: string[] }> {
+  async getGeneralImageSizes(@Param('id') id: string): Promise<{ sizes: MediaSizeResponseDto[] }> {
     return this.generalMediaService.getGeneralImageSizes(id);
   }
 

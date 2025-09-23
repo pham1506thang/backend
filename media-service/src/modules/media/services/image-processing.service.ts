@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as sharp from 'sharp';
-import { IMAGE_SIZES } from '../../../common/constants/image-sizes';
+import { IMAGE_SIZES, PROFILE_IMAGE_SIZES } from '../../../common/constants/image-sizes';
 
 export interface ImageSizeConfig {
   width: number;
@@ -21,11 +21,32 @@ export interface ImageProcessingResult {
 export class ImageProcessingService {
 
   /**
-   * Process image to generate multiple sizes
+   * Process image to generate multiple sizes for general images (3:2 ratio)
    */
   async processImage(
     inputBuffer: Buffer,
     sizes: string[] = ['thumbnail', 'small', 'medium', 'large']
+  ): Promise<Record<string, ImageProcessingResult>> {
+    return this.processImageWithConfig(inputBuffer, sizes, IMAGE_SIZES);
+  }
+
+  /**
+   * Process image to generate multiple sizes for profile images (1:1 ratio)
+   */
+  async processProfileImage(
+    inputBuffer: Buffer,
+    sizes: string[] = ['thumbnail', 'small', 'medium', 'large']
+  ): Promise<Record<string, ImageProcessingResult>> {
+    return this.processImageWithConfig(inputBuffer, sizes, PROFILE_IMAGE_SIZES);
+  }
+
+  /**
+   * Generic method to process image with specific size configuration
+   */
+  private async processImageWithConfig(
+    inputBuffer: Buffer,
+    sizes: string[],
+    sizeConfig: typeof IMAGE_SIZES | typeof PROFILE_IMAGE_SIZES
   ): Promise<Record<string, ImageProcessingResult>> {
     const results: Record<string, ImageProcessingResult> = {};
 
@@ -47,7 +68,7 @@ export class ImageProcessingService {
         continue;
       }
 
-      const config = IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
+      const config = sizeConfig[sizeName as keyof typeof sizeConfig];
       if (!config) {
         throw new Error(`Unknown size configuration: ${sizeName}`);
       }
@@ -64,7 +85,7 @@ export class ImageProcessingService {
    */
   private async resizeImage(
     inputBuffer: Buffer,
-    config: typeof IMAGE_SIZES[keyof typeof IMAGE_SIZES]
+    config: typeof IMAGE_SIZES[keyof typeof IMAGE_SIZES] | typeof PROFILE_IMAGE_SIZES[keyof typeof PROFILE_IMAGE_SIZES]
   ): Promise<ImageProcessingResult> {
     let sharpInstance = sharp(inputBuffer);
 
@@ -151,16 +172,30 @@ export class ImageProcessingService {
   }
 
   /**
-   * Get available size configurations
+   * Get available size configurations for general images
    */
   getAvailableSizes(): string[] {
     return Object.keys(IMAGE_SIZES);
   }
 
   /**
-   * Get size configuration
+   * Get available size configurations for profile images
+   */
+  getAvailableProfileSizes(): string[] {
+    return Object.keys(PROFILE_IMAGE_SIZES);
+  }
+
+  /**
+   * Get size configuration for general images
    */
   getSizeConfig(sizeName: string): typeof IMAGE_SIZES[keyof typeof IMAGE_SIZES] | undefined {
     return IMAGE_SIZES[sizeName as keyof typeof IMAGE_SIZES];
+  }
+
+  /**
+   * Get size configuration for profile images
+   */
+  getProfileSizeConfig(sizeName: string): typeof PROFILE_IMAGE_SIZES[keyof typeof PROFILE_IMAGE_SIZES] | undefined {
+    return PROFILE_IMAGE_SIZES[sizeName as keyof typeof PROFILE_IMAGE_SIZES];
   }
 }

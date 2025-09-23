@@ -21,21 +21,9 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
 - **Auth Service**: JWT verification
 - **Main Service**: User data lookup
 
-### Controller Architecture (Refactored)
+### Controller Architecture (Fully Separated)
 
-#### 1. SharedMediaController (Cross-category)
-- **Route**: `/medias`
-- **Purpose**: Cross-category operations với gateway permissions
-- **Service**: SharedMediaService
-- **Endpoints**:
-  - `GET /medias/search` - Search across all media
-  - `GET /medias/filter` - Filter across categories
-  - `GET /medias/tags` - Get all tags
-  - `GET /medias/by-tag/:tagName` - Get media by tag
-  - `GET /medias/:id/file` - Serve file (any category)
-  - `GET /medias/:id/file/:size` - Serve specific size (any category)
-
-#### 2. ProfileMediaController
+#### 1. ProfileMediaController
 - **Route**: `/medias/profile`
 - **Purpose**: Profile image specific operations (user isolation)
 - **Service**: ProfileMediaService
@@ -53,7 +41,7 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
   - `GET /medias/profile/:id/file` - Serve profile image
   - `GET /medias/profile/:id/file/:size` - Serve profile image size
 
-#### 3. GeneralMediaController
+#### 2. GeneralMediaController
 - **Route**: `/medias/general`
 - **Purpose**: General image specific operations với gateway permissions
 - **Service**: GeneralMediaService
@@ -82,12 +70,10 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
 - ✅ File organization structure theo cấu trúc ngày (year/month/mediaId)
 - ✅ Search và filter endpoints với cross-category support
 
-### Cấu trúc mới (Refactored):
+### Cấu trúc mới (Fully Separated):
 
-- ✅ **SharedMediasController**: Cross-category operations với gateway permissions
 - ✅ **ProfileMediasController**: Profile images với user isolation (không cần gateway permission)
 - ✅ **GeneralMediasController**: General images với gateway permissions
-- ✅ **SharedMediaService**: Shared logic cho cross-category operations
 - ✅ **ProfileMediaService**: Logic riêng cho profile images
 - ✅ **GeneralMediaService**: Logic riêng cho general images
 - ✅ **StoragePathUtil**: Utility cho date-based file organization
@@ -95,14 +81,6 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
 - ✅ **MEDIA_CATEGORIES, MEDIA_FILE_TYPES**: Constants cho enum values
 
 ### API Endpoints đã có:
-
-#### Cross-category Operations (`/medias`)
-- `GET /medias/search` - Search across all media
-- `GET /medias/filter` - Filter across categories
-- `GET /medias/tags` - Get all available tags
-- `GET /medias/by-tag/:tagName` - Get media by tag
-- `GET /medias/:id/file` - Serve any file
-- `GET /medias/:id/file/:size` - Serve specific size
 
 #### Profile Operations (`/medias/profile`)
 - `POST /medias/profile/upload` - Upload profile image
@@ -366,3 +344,33 @@ AUTH_SERVICE_URL=http://localhost:3002
 - [x] Code Refactoring & Cleanup
 
 **Status**: ✅ **FULLY IMPLEMENTED, REFACTORED AND CLEANED**
+
+## Recent Updates
+
+### Image Size Configuration Update (Latest)
+- **Date**: Current
+- **Changes**:
+  - Updated `IMAGE_SIZES` to use 3:2 aspect ratio for general images (landscape format)
+  - Added `PROFILE_IMAGE_SIZES` with 1:1 aspect ratio for profile images (square format)
+  - Enhanced `ImageProcessingService` to support both size configurations
+  - Updated `GeneralMediaService` to use 3:2 ratio for general images
+  - Updated `ProfileMediaService` to use 1:1 ratio for profile images
+  - Maintained same size names across both configurations for consistency
+
+**New Size Configurations**:
+- General Images (3:2 ratio): thumbnail (150x100), small (300x200), medium (600x400), large (1200x800)
+- Profile Images (1:1 ratio): thumbnail (150x150), small (300x300), medium (600x600), large (1200x1200)
+
+### Complete Separation Update (Latest)
+- **Date**: Current
+- **Changes**:
+  - Removed `SharedMediaController` and `SharedMediaService` completely
+  - Eliminated all cross-category endpoints (`/medias/search`, `/medias/filter`, etc.)
+  - Profile and General media are now completely separate with no shared logic
+  - Each category has its own dedicated endpoints and services
+  - Updated documentation to reflect complete separation
+
+**Current Architecture**:
+- **Profile Media**: `/medias/profile/*` - User-isolated profile images (1:1 ratio)
+- **General Media**: `/medias/general/*` - Permission-based general images (3:2 ratio)
+- **No Shared Endpoints**: Each category operates independently

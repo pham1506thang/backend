@@ -7,7 +7,7 @@ import {
   DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
-import { MEDIA_FILE_TYPES, MEDIA_CATEGORIES } from '../../../common/constants/image-sizes';
+import { MEDIA_FILE_TYPES, MEDIA_CATEGORIES, MEDIA_PROCESSING_STATUS } from '../../../common/constants/image-sizes';
 import { MediaSize } from './media-size.entity';
 import { MediaTag } from './media-tag.entity';
 
@@ -25,6 +25,9 @@ export class Media {
   @Column({ type: 'varchar', length: 100 })
   mimeType: string;
 
+  @Column({ type: 'varchar', length: 10 })
+  fileExtension: string; // jpg, png, webp, etc.
+
   @Column({
     type: 'enum',
     enum: Object.values(MEDIA_FILE_TYPES),
@@ -38,23 +41,33 @@ export class Media {
   })
   category: typeof MEDIA_CATEGORIES[keyof typeof MEDIA_CATEGORIES]; // general for images/, profile for profile/
 
-  @Column({ type: 'varchar', length: 500 })
-  filePath: string; // full path to file on storage
-
   @Column({ type: 'bigint' })
   size: number; // bytes
 
   @Column({ type: 'int', nullable: true })
-  width?: number; // for images
-
-  @Column({ type: 'int', nullable: true })
-  height?: number; // for images
+  quality?: number; // image quality (1-100)
 
   @Column({ type: 'uuid' })
   uploaderId: string; // JWTUser.id
 
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  isPublic: boolean; // privacy control
+
+  @Column({ type: 'text', nullable: true })
+  altText?: string; // accessibility
+
+  @Column({ type: 'text', nullable: true })
+  description?: string; // media description
+
+  @Column({
+    type: 'enum',
+    enum: Object.values(MEDIA_PROCESSING_STATUS),
+    default: MEDIA_PROCESSING_STATUS.COMPLETED,
+  })
+  processingStatus: typeof MEDIA_PROCESSING_STATUS[keyof typeof MEDIA_PROCESSING_STATUS];
 
   @Column({ type: 'jsonb', default: {} })
   metadata: Record<string, any>; // flexible metadata storage

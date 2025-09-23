@@ -1,9 +1,19 @@
 // Predefined sizes - System managed, not user configurable
+// General images use 3:2 ratio (landscape)
 export const IMAGE_SIZES = {
-  thumbnail: { width: 150, height: 150, quality: 80 },
-  small: { width: 300, height: 300, quality: 85 },
-  medium: { width: 600, height: 600, quality: 90 },
-  large: { width: 1200, height: 1200, quality: 95 },
+  thumbnail: { width: 150, height: 100, quality: 80 }, // 3:2 ratio
+  small: { width: 300, height: 200, quality: 85 }, // 3:2 ratio
+  medium: { width: 600, height: 400, quality: 90 }, // 3:2 ratio
+  large: { width: 1200, height: 800, quality: 95 }, // 3:2 ratio
+  original: { quality: 100 },
+} as const;
+
+// Profile images use 1:1 ratio (square)
+export const PROFILE_IMAGE_SIZES = {
+  thumbnail: { width: 150, height: 150, quality: 80 }, // 1:1 ratio
+  small: { width: 300, height: 300, quality: 85 }, // 1:1 ratio
+  medium: { width: 600, height: 600, quality: 90 }, // 1:1 ratio
+  large: { width: 1200, height: 1200, quality: 95 }, // 1:1 ratio
   original: { quality: 100 },
 } as const;
 
@@ -22,6 +32,7 @@ export const VIDEO_VARIANTS = {
 };
 
 export type ImageSizeName = keyof typeof IMAGE_SIZES;
+export type ProfileImageSizeName = keyof typeof PROFILE_IMAGE_SIZES;
 
 // Media categories
 export const MEDIA_CATEGORIES = {

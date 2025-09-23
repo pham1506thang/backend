@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Media } from '../entities/media.entity';
 import { MediaSize } from '../entities/media-size.entity';
+import { MediaTag } from '../entities/media-tag.entity';
 import { JwtUser } from 'shared-common';
-import { IMAGE_SIZES, MEDIA_CATEGORIES, MEDIA_FILE_TYPES } from '../../../common/constants/image-sizes';
+import { IMAGE_SIZES, MEDIA_CATEGORIES, MEDIA_FILE_TYPES, MEDIA_PROCESSING_STATUS } from '../../../common/constants/image-sizes';
 import { StoragePathUtil } from '../../../common/utils/storage-path.util';
 import { ImageProcessingService } from './image-processing.service';
 import { LocalStorageService } from './local-storage.service';
-import { MediaResponseDto, MediaListQueryDto } from '../dto';
+import { MediaResponseDto, MediaListQueryDto, MediaSizeResponseDto, MediaTagResponseDto } from '../dto';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class GeneralMediaService {
@@ -52,21 +54,27 @@ export class GeneralMediaService {
       originalName: file.originalname,
       fileName,
       mimeType: file.mimetype,
+      fileExtension: fileExtension,
       fileType: MEDIA_FILE_TYPES.IMAGE,
       category: MEDIA_CATEGORIES.GENERAL,
-      filePath: basePath,
       size: file.size,
       uploaderId: user.id,
-      metadata: {
-        uploadedAt: date.toISOString(),
-        originalSize: file.size,
-      },
+      processingStatus: MEDIA_PROCESSING_STATUS.PROCESSING,
+      metadata: {},
     });
 
     const savedMedia = await this.mediaRepository.save(media);
 
     // Generate all general image sizes
     await this.generateGeneralImageSizes(savedMedia, file.buffer, date);
+
+    // Update processing status to completed and add processing metadata
+    savedMedia.processingStatus = MEDIA_PROCESSING_STATUS.COMPLETED;
+    savedMedia.metadata = {
+      processingCompletedAt: new Date().toISOString(),
+      generatedSizes: Object.keys(IMAGE_SIZES),
+    };
+    await this.mediaRepository.save(savedMedia);
 
     return this.mapToResponseDto(savedMedia);
   }
@@ -135,6 +143,8 @@ export class GeneralMediaService {
     const offset = (page - 1) * limit;
 
     queryBuilder.skip(offset).take(limit);
+    queryBuilder.leftJoinAndSelect('media.sizes', 'sizes');
+    queryBuilder.leftJoinAndSelect('media.tags', 'tags');
 
     const [medias, total] = await queryBuilder.getManyAndCount();
 
@@ -150,6 +160,7 @@ export class GeneralMediaService {
   async getGeneralImage(id: string): Promise<MediaResponseDto> {
     const media = await this.mediaRepository.findOne({
       where: { id, category: MEDIA_CATEGORIES.GENERAL, isActive: true },
+      relations: ['sizes', 'tags'],
     });
 
     if (!media) {
@@ -160,9 +171,9 @@ export class GeneralMediaService {
   }
 
   /**
-   * Get all available sizes for general image
+   * Get all available sizes for general image with detailed information
    */
-  async getGeneralImageSizes(id: string): Promise<{ sizes: string[] }> {
+  async getGeneralImageSizes(id: string): Promise<{ sizes: MediaSizeResponseDto[] }> {
     const media = await this.mediaRepository.findOne({
       where: { id, category: MEDIA_CATEGORIES.GENERAL, isActive: true },
     });
@@ -171,14 +182,13 @@ export class GeneralMediaService {
       throw new Error('General image not found');
     }
 
-    const sizes = await this.mediaSizeRepository
-      .createQueryBuilder('size')
-      .where('size.mediaId = :mediaId', { mediaId: id })
-      .select('size.sizeName')
-      .getRawMany();
+    const mediaSizes = await this.mediaSizeRepository.find({
+      where: { mediaId: id },
+      order: { createdAt: 'ASC' },
+    });
 
     return {
-      sizes: sizes.map(s => s.size_sizeName),
+      sizes: mediaSizes.map(size => this.mapMediaSizeToResponseDto(size)),
     };
   }
 
@@ -188,6 +198,7 @@ export class GeneralMediaService {
   async updateGeneralImage(id: string, updateData: any, user: JwtUser): Promise<MediaResponseDto> {
     const media = await this.mediaRepository.findOne({
       where: { id, category: MEDIA_CATEGORIES.GENERAL, isActive: true },
+      relations: ['sizes', 'tags'],
     });
 
     if (!media) {
@@ -250,6 +261,8 @@ export class GeneralMediaService {
 
     queryBuilder.skip(offset).take(limit);
     queryBuilder.orderBy('media.createdAt', 'DESC');
+    queryBuilder.leftJoinAndSelect('media.sizes', 'sizes');
+    queryBuilder.leftJoinAndSelect('media.tags', 'tags');
 
     const [medias, total] = await queryBuilder.getManyAndCount();
 
@@ -277,6 +290,8 @@ export class GeneralMediaService {
 
     queryBuilder.skip(offset).take(limit);
     queryBuilder.orderBy('media.createdAt', 'DESC');
+    queryBuilder.leftJoinAndSelect('media.sizes', 'sizes');
+    queryBuilder.leftJoinAndSelect('media.tags', 'tags');
 
     const [medias, total] = await queryBuilder.getManyAndCount();
 
@@ -315,7 +330,7 @@ export class GeneralMediaService {
   }
 
   /**
-   * Generate all general image sizes
+   * Generate all general image sizes (3:2 ratio)
    */
   private async generateGeneralImageSizes(media: Media, originalBuffer: Buffer, date: Date): Promise<void> {
     const sizes = Object.keys(IMAGE_SIZES) as Array<keyof typeof IMAGE_SIZES>;
@@ -364,7 +379,7 @@ export class GeneralMediaService {
    * Generate unique media ID
    */
   private generateMediaId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return randomUUID();
   }
 
   /**
@@ -383,16 +398,52 @@ export class GeneralMediaService {
       originalName: media.originalName,
       fileName: media.fileName,
       mimeType: media.mimeType,
+      fileExtension: media.fileExtension,
       fileType: media.fileType,
       category: media.category,
       size: media.size,
-      width: media.width,
-      height: media.height,
+      quality: media.quality,
       uploaderId: media.uploaderId,
       isActive: media.isActive,
+      isPublic: media.isPublic,
+      altText: media.altText,
+      description: media.description,
+      processingStatus: media.processingStatus,
       metadata: media.metadata,
+      sizes: media.sizes?.map(size => this.mapMediaSizeToResponseDto(size)) || [],
+      tags: media.tags?.map(tag => this.mapMediaTagToResponseDto(tag)) || [],
       createdAt: media.createdAt,
       updatedAt: media.updatedAt,
+    };
+  }
+
+  /**
+   * Map MediaSize entity to response DTO
+   */
+  private mapMediaSizeToResponseDto(mediaSize: MediaSize): MediaSizeResponseDto {
+    return {
+      sizeName: mediaSize.sizeName,
+      fileName: mediaSize.fileName,
+      filePath: mediaSize.filePath,
+      width: mediaSize.width,
+      height: mediaSize.height,
+      size: mediaSize.size,
+      quality: mediaSize.quality,
+      url: `/medias/${mediaSize.filePath}/${mediaSize.fileName}`,
+      createdAt: mediaSize.createdAt,
+    };
+  }
+
+  /**
+   * Map MediaTag entity to response DTO
+   */
+  private mapMediaTagToResponseDto(mediaTag: MediaTag): MediaTagResponseDto {
+    return {
+      id: mediaTag.id,
+      tagName: mediaTag.tagName,
+      tagValue: mediaTag.tagValue,
+      createdBy: mediaTag.createdBy,
+      createdAt: mediaTag.createdAt,
     };
   }
 }
