@@ -11,7 +11,7 @@ import { MEDIA_FILE_TYPES, MEDIA_CATEGORIES } from '../../../common/constants/im
 import { MediaSize } from './media-size.entity';
 import { MediaTag } from './media-tag.entity';
 
-@Entity('medias')
+@Entity('media')
 export class Media {
   @PrimaryGeneratedColumn('uuid')
   id: string;

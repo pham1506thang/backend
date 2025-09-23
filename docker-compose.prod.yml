@@ -10,7 +10,7 @@ services:
       - NODE_ENV=production
     restart: unless-stopped
 
-  medias-service:
+  media-service:
     environment:
       - NODE_ENV=production
     restart: unless-stopped

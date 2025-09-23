@@ -1,8 +1,8 @@
-# Medias Service - Frontend API Guide
+# Media Service - Frontend API Guide
 
 ## 🎯 Overview
 
-Medias Service cung cấp API để quản lý media files với 3 loại operations:
+Media Service cung cấp API để quản lý media files với 3 loại operations:
 - **Cross-category**: Tìm kiếm/filter toàn bộ media
 - **Profile**: Quản lý ảnh profile của user
 - **General**: Quản lý ảnh chung (cần permissions)

@@ -1,4 +1,4 @@
-# Medias Service - Implementation Summary
+# Media Service - Implementation Summary
 
 ## 🎯 Overview
 
@@ -6,13 +6,13 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
 
 ## ✅ Implementation Status: REFACTORED & CLEANED
 
-Đã refactor medias service với cấu trúc 3 controllers riêng biệt, loại bỏ code trùng lặp và tách riêng shared functionality.
+Đã refactor media service với cấu trúc 3 controllers riêng biệt, loại bỏ code trùng lặp và tách riêng shared functionality.
 
 ## 🏗️ Architecture
 
 ### Database Separation
 
-- **Medias Service Database**: PostgreSQL (mediasdb) - Port 5433
+- **Media Service Database**: PostgreSQL (mediadb) - Port 5433
 - **Main Service Database**: PostgreSQL (maindb) - Port 5432
 - **Auth Service**: Stateless (no database)
 
@@ -23,7 +23,7 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
 
 ### Controller Architecture (Refactored)
 
-#### 1. SharedMediasController (Cross-category)
+#### 1. SharedMediaController (Cross-category)
 - **Route**: `/medias`
 - **Purpose**: Cross-category operations với gateway permissions
 - **Service**: SharedMediaService
@@ -35,7 +35,7 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
   - `GET /medias/:id/file` - Serve file (any category)
   - `GET /medias/:id/file/:size` - Serve specific size (any category)
 
-#### 2. ProfileMediasController
+#### 2. ProfileMediaController
 - **Route**: `/medias/profile`
 - **Purpose**: Profile image specific operations (user isolation)
 - **Service**: ProfileMediaService
@@ -53,7 +53,7 @@ Microservice quản lý media files với focus vào images, hỗ trợ multiple
   - `GET /medias/profile/:id/file` - Serve profile image
   - `GET /medias/profile/:id/file/:size` - Serve profile image size
 
-#### 3. GeneralMediasController
+#### 3. GeneralMediaController
 - **Route**: `/medias/general`
 - **Purpose**: General image specific operations với gateway permissions
 - **Service**: GeneralMediaService
@@ -254,7 +254,7 @@ CREATE TABLE media_tag (
 ```bash
 # Medias Service
 PORT=3001
-MEDIAS_SERVICE_PORT=3001
+MEDIA_SERVICE_PORT=3001
 
 # Database
 DB_HOST=medias-db

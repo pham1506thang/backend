@@ -6,11 +6,11 @@ import { SERVICE_NAMES, QUEUE_NAMES } from '../../constants/message-queue';
   imports: [
     ClientsModule.register([
       {
-        name: SERVICE_NAMES.MEDIAS_SERVICE,
+        name: SERVICE_NAMES.MEDIA_SERVICE,
         transport: Transport.RMQ,
         options: {
           urls: [process.env.RABBITMQ_URL],
-          queue: QUEUE_NAMES.MEDIAS_SERVICE_QUEUE,
+          queue: QUEUE_NAMES.MEDIA_SERVICE_QUEUE,
           queueOptions: {
             durable: true,
           },
@@ -20,4 +20,4 @@ import { SERVICE_NAMES, QUEUE_NAMES } from '../../constants/message-queue';
   ],
   exports: [ClientsModule],
 })
-export class MediasMicroserviceModule {}
+export class MediaMicroserviceModule {}

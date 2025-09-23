@@ -13,13 +13,13 @@
     "dev:auth": "yarn workspace auth-service start:dev",
     "dev:main": "yarn workspace main-service start:dev",
     "dev:gateway": "yarn workspace user-permission-gateway start:dev",
-    "dev:medias": "yarn workspace medias-service start:dev",
-    "dev:all": "concurrently \"yarn dev:shared\" \"yarn dev:auth\" \"yarn dev:main\" \"yarn dev:gateway\" \"yarn dev:medias\"",
+    "dev:media": "yarn workspace media-service start:dev",
+    "dev:all": "concurrently \"yarn dev:shared\" \"yarn dev:auth\" \"yarn dev:main\" \"yarn dev:gateway\" \"yarn dev:media\"",
     "docker:dev": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build --remove-orphans",
     "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "health": "echo 'Checking service health...' && source .env && echo 'Nginx Gateway:' $(curl -s http://localhost:8080/nginx-health 2>/dev/null | grep -q healthy && echo '✅' || echo '❌') && echo 'Main Service:' $(docker-compose exec -T main-service wget --quiet --tries=1 --spider http://localhost:${MAIN_SERVICE_PORT}/health 2>/dev/null && echo '✅' || echo '❌') && echo 'Auth Service:' $(docker-compose exec -T auth-service wget --quiet --tries=1 --spider http://localhost:${AUTH_SERVICE_PORT}/health 2>/dev/null && echo '✅' || echo '❌') && echo 'Medias Service:' $(docker-compose exec -T medias-service wget --quiet --tries=1 --spider http://localhost:${MEDIAS_SERVICE_PORT}/health 2>/dev/null && echo '✅' || echo '❌') && echo 'Gateway Service:' $(docker-compose exec -T user-permission-gateway wget --quiet --tries=1 --spider http://localhost:${USER_PERMISSION_GATEWAY_PORT}/health 2>/dev/null && echo '✅' || echo '❌')"
+    "health": "echo 'Checking service health...' && source .env && echo 'Nginx Gateway:' $(curl -s http://localhost:8080/nginx-health 2>/dev/null | grep -q healthy && echo '✅' || echo '❌') && echo 'Main Service:' $(docker-compose exec -T main-service wget --quiet --tries=1 --spider http://localhost:${MAIN_SERVICE_PORT}/health 2>/dev/null && echo '✅' || echo '❌') && echo 'Auth Service:' $(docker-compose exec -T auth-service wget --quiet --tries=1 --spider http://localhost:${AUTH_SERVICE_PORT}/health 2>/dev/null && echo '✅' || echo '❌') && echo 'Media Service:' $(docker-compose exec -T media-service wget --quiet --tries=1 --spider http://localhost:${MEDIA_SERVICE_PORT}/health 2>/dev/null && echo '✅' || echo '❌') && echo 'Gateway Service:' $(docker-compose exec -T user-permission-gateway wget --quiet --tries=1 --spider http://localhost:${USER_PERMISSION_GATEWAY_PORT}/health 2>/dev/null && echo '✅' || echo '❌')"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -80,7 +80,7 @@
     "auth-service",
     "main-service",
     "user-permission-gateway",
-    "medias-service"
+    "media-service"
   ],
   "packageManager": "yarn@1.22.22"
 }

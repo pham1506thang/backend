@@ -16,9 +16,9 @@ import {
 } from 'shared-common';
 import { UseGuards } from '@nestjs/common';
 
-@Controller('medias')
+@Controller(DOMAINS.MEDIAS.value)
 @UseGuards(JwtAuthGuard, GatewayRoleGuard)
-export class SharedMediasController {
+export class SharedMediaController {
   constructor(private readonly sharedMediaService: SharedMediaService) {}
 
   // Cross-category search operations

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedMediasController } from './controllers/shared-medias.controller';
-import { ProfileMediasController } from './controllers/profile-medias.controller';
-import { GeneralMediasController } from './controllers/general-medias.controller';
+import { SharedMediaController } from './controllers/shared-media.controller';
+import { ProfileMediaController } from './controllers/profile-media.controller';
+import { GeneralMediaController } from './controllers/general-media.controller';
 import { SharedMediaService } from './services/shared-media.service';
 import { ProfileMediaService } from './services/profile-media.service';
 import { GeneralMediaService } from './services/general-media.service';
@@ -18,9 +18,9 @@ import { GatewayRoleGuard, UserPermissionService, UserPermissionGatewayMicroserv
     UserPermissionGatewayMicroserviceModule,
   ],
   controllers: [
-    SharedMediasController,
-    ProfileMediasController,
-    GeneralMediasController,
+    SharedMediaController,
+    ProfileMediaController,
+    GeneralMediaController,
   ],
   providers: [
     SharedMediaService,
@@ -38,4 +38,4 @@ import { GatewayRoleGuard, UserPermissionService, UserPermissionGatewayMicroserv
     GeneralMediaService,
   ],
 })
-export class MediasModule {}
+export class MediaModule {}

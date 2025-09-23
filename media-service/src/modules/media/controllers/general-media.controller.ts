@@ -26,9 +26,9 @@ import {
 } from 'shared-common';
 import { UseGuards } from '@nestjs/common';
 
-@Controller('medias/general')
+@Controller(`${DOMAINS.MEDIAS.value}/general`)
 @UseGuards(JwtAuthGuard, GatewayRoleGuard)
-export class GeneralMediasController {
+export class GeneralMediaController {
   constructor(private readonly generalMediaService: GeneralMediaService) {}
 
   @Post('upload')

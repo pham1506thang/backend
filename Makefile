@@ -23,9 +23,9 @@ help:
 	@echo "  restart <name>  - Restart specific service"
 	@echo "  exec <name>     - Execute command in specific service container"
 	@echo ""
-	@echo "Available services: main-service, auth-service, medias-service,"
+	@echo "Available services: main-service, auth-service, media-service,"
 	@echo "                   user-permission-gateway, nginx-gateway, db,"
-	@echo "                   medias-db, rabbitmq"
+	@echo "                   media-db, rabbitmq"
 
 # Production mode
 up:

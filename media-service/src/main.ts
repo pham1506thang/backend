@@ -3,9 +3,8 @@ import { BootstrapUtils } from 'shared-common';
 
 async function bootstrap() {
   await BootstrapUtils.bootstrapHttpService(AppModule, {
-    port: parseInt(process.env.MEDIAS_SERVICE_PORT),
-    serviceName: '🚀 Medias Service',
-    enableHttpExceptionFilter: false, // Medias service doesn't use HttpExceptionFilter
+    port: parseInt(process.env.MEDIA_SERVICE_PORT),
+    serviceName: '🚀 Media Service'
   });
 
   console.log(`📊 RabbitMQ Management: http://localhost:15672`);

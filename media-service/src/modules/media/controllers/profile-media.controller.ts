@@ -20,12 +20,13 @@ import {
   CurrentUser,
   JwtUser,
   JwtAuthGuard,
+  DOMAINS,
 } from 'shared-common';
 import { UseGuards } from '@nestjs/common';
 
-@Controller('medias/profile')
+@Controller(`${DOMAINS.MEDIAS.value}/profile`)
 @UseGuards(JwtAuthGuard)
-export class ProfileMediasController {
+export class ProfileMediaController {
   constructor(private readonly profileMediaService: ProfileMediaService) {}
 
   @Post('upload')

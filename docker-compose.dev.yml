@@ -24,13 +24,13 @@ services:
     environment:
       - NODE_ENV=development
 
-  medias-service:
+  media-service:
     build:
       context: .
-      dockerfile: ./medias-service/Dockerfile
+      dockerfile: ./media-service/Dockerfile
       target: development
     volumes:
-      - ./medias-service:/app/medias-service
+      - ./media-service:/app/media-service
       - ./shared-common:/app/shared-common
       - /app/node_modules
       - ./storage:/app/storage

@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for medias-service
+# Multi-stage Dockerfile for media-service
 FROM node:20-alpine AS base
 
 # Install dependencies
@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json yarn.lock ./
-COPY medias-service/package*.json ./medias-service/
+COPY media-service/package*.json ./media-service/
 COPY shared-common/package*.json ./shared-common/
 
 # Install all dependencies (including dev dependencies)
@@ -18,7 +18,7 @@ RUN yarn install --frozen-lockfile
 FROM base AS development
 # Copy only necessary source code
 COPY shared-common ./shared-common
-COPY medias-service ./medias-service
+COPY media-service ./media-service
 WORKDIR /app
 
 # Create storage directories
@@ -28,20 +28,20 @@ RUN mkdir -p /app/storage/medias /app/storage/profiles
 RUN yarn workspace shared-common build
 
 # Start with hot-reload
-CMD ["yarn", "workspace", "medias-service", "start:dev"]
+CMD ["yarn", "workspace", "media-service", "start:dev"]
 
 # ==================== BUILDER STAGE ====================
 FROM base AS builder
 # Copy only necessary source code
 COPY shared-common ./shared-common
-COPY medias-service ./medias-service
+COPY media-service ./media-service
 WORKDIR /app
 
 # Build shared-common first
 RUN yarn workspace shared-common build
 
 # Build the application
-RUN yarn workspace medias-service build
+RUN yarn workspace media-service build
 
 # ==================== PRODUCTION STAGE ====================
 FROM node:20-alpine AS production
@@ -53,7 +53,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json yarn.lock ./
-COPY medias-service/package*.json ./medias-service/
+COPY media-service/package*.json ./media-service/
 COPY shared-common/package*.json ./shared-common/
 
 # Install only production dependencies
@@ -62,7 +62,7 @@ RUN yarn install --production --frozen-lockfile && \
 
 # Copy built application from builder stage
 COPY --from=builder /app/shared-common/dist ./shared-common/dist
-COPY --from=builder /app/medias-service/dist ./medias-service/dist
+COPY --from=builder /app/media-service/dist ./media-service/dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -71,7 +71,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 USER nestjs
 
-WORKDIR /app/medias-service
+WORKDIR /app/media-service
 
 # Create storage directories after switching to non-root user
 RUN mkdir -p /app/storage/medias /app/storage/profiles

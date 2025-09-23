@@ -13,7 +13,7 @@ services:
     depends_on:
       - main-service
       - auth-service
-      - medias-service
+      - media-service
       - user-permission-gateway
     networks:
       - backend-network
@@ -70,26 +70,26 @@ services:
       timeout: 5s
       retries: 3
 
-  medias-service:
+  media-service:
     build:
       context: .
-      dockerfile: ./medias-service/Dockerfile
+      dockerfile: ./media-service/Dockerfile
       target: production
       args:
-        PORT: ${MEDIAS_SERVICE_PORT}
+        PORT: ${MEDIA_SERVICE_PORT}
     env_file:
       - ./.env
-      - ./medias-service/.env
+      - ./media-service/.env
     # Ports removed - only accessible via Nginx Gateway
     depends_on:
-      medias-db:
+      media-db:
         condition: service_started
       rabbitmq:
         condition: service_healthy
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:${MEDIAS_SERVICE_PORT}/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:${MEDIA_SERVICE_PORT}/health"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -132,17 +132,17 @@ services:
     networks:
       - backend-network
 
-  # Medias Service Database
-  medias-db:
+  # Media Service Database
+  media-db:
     image: postgres:15
     environment:
-      POSTGRES_DB: ${MEDIAS_DB_NAME}
-      POSTGRES_USER: ${MEDIAS_DB_USERNAME}
-      POSTGRES_PASSWORD: ${MEDIAS_DB_PASSWORD}
+      POSTGRES_DB: ${MEDIA_DB_NAME}
+      POSTGRES_USER: ${MEDIA_DB_USERNAME}
+      POSTGRES_PASSWORD: ${MEDIA_DB_PASSWORD}
     ports:
-      - "${MEDIAS_DB_PORT_EXTERNAL}:${MEDIAS_DB_PORT_INTERNAL}"
+      - "${MEDIA_DB_PORT_EXTERNAL}:${MEDIA_DB_PORT_INTERNAL}"
     volumes:
-      - medias_postgres_data:/var/lib/postgresql/data
+      - media_postgres_data:/var/lib/postgresql/data
     networks:
       - backend-network
 
@@ -168,7 +168,7 @@ services:
 
 volumes:
   main_postgres_data:
-  medias_postgres_data:
+  media_postgres_data:
   rabbitmq_data:
 
 networks:
