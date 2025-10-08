@@ -4,6 +4,8 @@ import { ProfileMediaController } from './controllers/profile-media.controller';
 import { GeneralMediaController } from './controllers/general-media.controller';
 import { ProfileMediaService } from './services/profile-media.service';
 import { GeneralMediaService } from './services/general-media.service';
+import { BaseMediaService } from './services/base-media.service';
+import { MediaRepository } from './repositories/media.repository';
 import { Media, MediaSize, MediaTag } from './entities';
 import { LocalStorageService } from './services/local-storage.service';
 import { FileOperationsService } from './services/file-operations.service';
@@ -20,6 +22,8 @@ import { GatewayRoleGuard, UserPermissionService, UserPermissionGatewayMicroserv
     GeneralMediaController,
   ],
   providers: [
+    MediaRepository,
+    BaseMediaService,
     ProfileMediaService,
     GeneralMediaService,
     LocalStorageService,

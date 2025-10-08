@@ -21,8 +21,8 @@ COPY shared-common ./shared-common
 COPY media-service ./media-service
 WORKDIR /app
 
-# Create storage directories
-RUN mkdir -p /app/storage/medias /app/storage/profiles
+# Create base storage directory
+RUN mkdir -p /app/storage/medias
 
 # Build shared-common for development
 RUN yarn workspace shared-common build
@@ -73,8 +73,8 @@ USER nestjs
 
 WORKDIR /app/media-service
 
-# Create storage directories after switching to non-root user
-RUN mkdir -p /app/storage/medias /app/storage/profiles
+# Create base storage directory after switching to non-root user
+RUN mkdir -p /app/storage/medias
 
 # Start the application
 CMD ["dumb-init", "node", "dist/main.js"]

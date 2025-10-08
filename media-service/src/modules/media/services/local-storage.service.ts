@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { join } from 'path';
 import { IStorageService } from '../interfaces/storage.interface';
 import { FileOperationsService } from './file-operations.service';
+import { FileStats } from '../../../common/interfaces/file-metadata.interface';
 
 @Injectable()
 export class LocalStorageService implements IStorageService {
   private readonly basePath: string;
 
   constructor(private readonly fileOps: FileOperationsService) {
-    this.basePath = process.env.STORAGE_PATH || '/storage/medias';
+    this.basePath = process.env.STORAGE_PATH || '/app/storage/medias';
   }
 
   async uploadFile(file: any, path: string): Promise<string> {
@@ -43,15 +44,15 @@ export class LocalStorageService implements IStorageService {
   }
 
   /**
-   * Get file stats
+   * Get file stats - delegates to FileOperationsService
    */
-  async getFileStats(path: string): Promise<{ size: number; mtime: Date }> {
+  async getFileStats(path: string): Promise<FileStats> {
     const fullPath = join(this.basePath, path);
     return await this.fileOps.getFileStats(fullPath);
   }
 
   /**
-   * Copy file
+   * Copy file - delegates to FileOperationsService
    */
   async copyFile(sourcePath: string, destPath: string): Promise<void> {
     const fullSourcePath = join(this.basePath, sourcePath);
@@ -60,7 +61,7 @@ export class LocalStorageService implements IStorageService {
   }
 
   /**
-   * Move file
+   * Move file - delegates to FileOperationsService
    */
   async moveFile(sourcePath: string, destPath: string): Promise<void> {
     const fullSourcePath = join(this.basePath, sourcePath);

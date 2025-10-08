@@ -2,6 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { join, dirname, extname, basename } from 'path';
 import { createHash } from 'crypto';
+import { 
+  getMimeTypeFromExtension, 
+  getFileTypeFromMimeType, 
+  getFileTypeFromExtension,
+  FileTypeCategory 
+} from '../../../common/utils/mime-type.util';
+import { FileStats } from '../../../common/interfaces/file-metadata.interface';
 
 @Injectable()
 export class FileOperationsService {
@@ -78,7 +85,7 @@ export class FileOperationsService {
   /**
    * Get file stats
    */
-  async getFileStats(filePath: string): Promise<{ size: number; mtime: Date }> {
+  async getFileStats(filePath: string): Promise<FileStats> {
     const stats = await fs.stat(filePath);
     return {
       size: stats.size,
@@ -130,68 +137,23 @@ export class FileOperationsService {
   }
 
   /**
-   * Get MIME type from file extension
+   * Get MIME type from file extension - delegates to utility
    */
   getMimeTypeFromExtension(extension: string): string {
-    const mimeTypes: Record<string, string> = {
-      // Images
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.gif': 'image/gif',
-      '.webp': 'image/webp',
-      '.svg': 'image/svg+xml',
-      '.bmp': 'image/bmp',
-      '.tiff': 'image/tiff',
-
-      // Audio
-      '.mp3': 'audio/mpeg',
-      '.wav': 'audio/wav',
-      '.ogg': 'audio/ogg',
-      '.m4a': 'audio/mp4',
-      '.aac': 'audio/aac',
-      '.flac': 'audio/flac',
-
-      // Video
-      '.mp4': 'video/mp4',
-      '.avi': 'video/x-msvideo',
-      '.mov': 'video/quicktime',
-      '.webm': 'video/webm',
-      '.mkv': 'video/x-matroska',
-      '.wmv': 'video/x-ms-wmv',
-
-      // Documents
-      '.pdf': 'application/pdf',
-      '.doc': 'application/msword',
-      '.docx':
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      '.xls': 'application/vnd.ms-excel',
-      '.xlsx':
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      '.ppt': 'application/vnd.ms-powerpoint',
-      '.pptx':
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    };
-
-    return mimeTypes[extension] || 'application/octet-stream';
+    return getMimeTypeFromExtension(extension);
   }
 
   /**
-   * Get file type category from MIME type
+   * Get file type category from MIME type - delegates to utility
    */
-  getFileTypeFromMimeType(
-    mimeType: string
-  ): 'image' | 'audio' | 'video' | 'document' | 'other' {
-    if (mimeType.startsWith('image/')) return 'image';
-    if (mimeType.startsWith('audio/')) return 'audio';
-    if (mimeType.startsWith('video/')) return 'video';
-    if (
-      mimeType.includes('pdf') ||
-      mimeType.includes('document') ||
-      mimeType.includes('sheet') ||
-      mimeType.includes('presentation')
-    )
-      return 'document';
-    return 'other';
+  getFileTypeFromMimeType(mimeType: string): FileTypeCategory {
+    return getFileTypeFromMimeType(mimeType);
+  }
+
+  /**
+   * Get file type category from file extension - delegates to utility
+   */
+  getFileTypeFromExtension(extension: string): FileTypeCategory {
+    return getFileTypeFromExtension(extension);
   }
 }

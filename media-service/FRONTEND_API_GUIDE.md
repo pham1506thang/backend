@@ -2,10 +2,9 @@
 
 ## 🎯 Overview
 
-Media Service cung cấp API để quản lý media files với 3 loại operations:
-- **Cross-category**: Tìm kiếm/filter toàn bộ media
-- **Profile**: Quản lý ảnh profile của user
-- **General**: Quản lý ảnh chung (cần permissions)
+Media Service cung cấp API để quản lý media files với 2 loại operations chính:
+- **Profile**: Quản lý ảnh profile của user (chỉ cần JWT auth)
+- **General**: Quản lý ảnh chung (cần JWT auth + permissions)
 
 ## 🔗 Base URL
 
@@ -15,100 +14,76 @@ http://localhost:3001/medias
 
 ## 📋 API Endpoints
 
-### 1. Cross-category Operations (Shared)
-
-#### Search Media
-```http
-GET /medias/search?q={query}&category={category}&type={type}&page={page}&limit={limit}
-```
-
-**Query Parameters:**
-- `q` (string): Search query
-- `category` (optional): "profile" | "general"
-- `type` (optional): "image" | "audio" | "video"
-- `page` (optional): Page number (default: 1)
-- `limit` (optional): Items per page (default: 10)
-
-**Response:**
-```typescript
-{
-  data: MediaResponseDto[];
-  total: number;
-}
-```
-
-#### Filter Media
-```http
-GET /medias/filter?category={category}&fileType={type}&userId={userId}&dateFrom={date}&dateTo={date}&search={query}&sortBy={field}&sortOrder={order}&page={page}&limit={limit}
-```
-
-#### Get All Tags
-```http
-GET /medias/tags
-```
-
-**Response:**
-```typescript
-{
-  tags: string[];
-}
-```
-
-#### Get Media by Tag
-```http
-GET /medias/by-tag/{tagName}?page={page}&limit={limit}
-```
-
-#### Serve File
-```http
-GET /medias/{id}/file?size={size}
-GET /medias/{id}/file/{size}
-```
-
-**Response:**
-```typescript
-{
-  url: string;
-}
-```
-
-### 2. Profile Operations
+### 1. Profile Operations
 
 #### Upload Profile Image
 ```http
 POST /medias/profile/upload
 Content-Type: multipart/form-data
+Authorization: Bearer {jwt_token}
 
 Body: file (image file)
+```
+
+**Response:**
+```typescript
+MediaResponseDto
 ```
 
 #### Upload Multiple Profile Images
 ```http
 POST /medias/profile/upload-multiple
 Content-Type: multipart/form-data
+Authorization: Bearer {jwt_token}
 
-Body: files (array of image files)
+Body: files (array of image files, max 10)
 ```
 
-#### List Profile Images
+**Response:**
+```typescript
+MediaResponseDto[]
+```
+
+#### List Profile Images (Infinite Scroll)
 ```http
-GET /medias/profile?page={page}&limit={limit}&search={query}&sortBy={field}&sortOrder={order}
+GET /medias/profile?cursor={cursor}&limit={limit}
+Authorization: Bearer {jwt_token}
+```
+
+**Query Parameters:**
+- `cursor` (optional): Cursor for pagination
+- `limit` (optional): Items per page (default: 10)
+
+**Response:**
+```typescript
+{
+  data: MediaResponseDto[];
+  nextCursor?: string;
+  hasMore: boolean;
+}
 ```
 
 #### Get Profile Image Details
 ```http
 GET /medias/profile/{id}
+Authorization: Bearer {jwt_token}
+```
+
+**Response:**
+```typescript
+MediaResponseDto
 ```
 
 #### Get Profile Image Sizes
 ```http
 GET /medias/profile/{id}/sizes
+Authorization: Bearer {jwt_token}
 ```
 
 **Response:**
 ```typescript
 {
-  sizes: string[];
+  sizes: MediaSizeResponseDto[];
 }
 ```
 
@@ -116,101 +91,127 @@ GET /medias/profile/{id}/sizes
 ```http
 PUT /medias/profile/{id}
 Content-Type: application/json
+Authorization: Bearer {jwt_token}
 
 Body: UpdateMediaDto
+```
+
+**Response:**
+```typescript
+MediaResponseDto
 ```
 
 #### Delete Profile Image
 ```http
 DELETE /medias/profile/{id}
+Authorization: Bearer {jwt_token}
 ```
 
-#### Search Profile Images
-```http
-GET /medias/profile/search?q={query}&page={page}&limit={limit}
+**Response:**
+```typescript
+{
+  message: string;
+}
 ```
 
-#### Filter Profile Images
-```http
-GET /medias/profile/filter?search={query}&sortBy={field}&sortOrder={order}&page={page}&limit={limit}
-```
-
-#### Get Profile Images by Tag
-```http
-GET /medias/profile/by-tag/{tagName}?page={page}&limit={limit}
-```
-
-#### Serve Profile Image
-```http
-GET /medias/profile/{id}/file?size={size}
-GET /medias/profile/{id}/file/{size}
-```
-
-### 3. General Operations
+### 2. General Operations
 
 #### Upload General Image
 ```http
 POST /medias/general/upload
 Content-Type: multipart/form-data
+Authorization: Bearer {jwt_token}
 
 Body: file (image file)
+```
+
+**Response:**
+```typescript
+MediaResponseDto
 ```
 
 #### Upload Multiple General Images
 ```http
 POST /medias/general/upload-multiple
 Content-Type: multipart/form-data
+Authorization: Bearer {jwt_token}
 
-Body: files (array of image files)
+Body: files (array of image files, max 10)
 ```
 
-#### List General Images
+**Response:**
+```typescript
+MediaResponseDto[]
+```
+
+#### List General Images (Infinite Scroll)
 ```http
-GET /medias/general?page={page}&limit={limit}&search={query}&sortBy={field}&sortOrder={order}
+GET /medias/general?cursor={cursor}&limit={limit}
+Authorization: Bearer {jwt_token}
+```
+
+**Query Parameters:**
+- `cursor` (optional): Cursor for pagination
+- `limit` (optional): Items per page (default: 10)
+
+**Response:**
+```typescript
+{
+  data: MediaResponseDto[];
+  nextCursor?: string;
+  hasMore: boolean;
+}
 ```
 
 #### Get General Image Details
 ```http
 GET /medias/general/{id}
+Authorization: Bearer {jwt_token}
+```
+
+**Response:**
+```typescript
+MediaResponseDto
 ```
 
 #### Get General Image Sizes
 ```http
 GET /medias/general/{id}/sizes
+Authorization: Bearer {jwt_token}
+```
+
+**Response:**
+```typescript
+{
+  sizes: MediaSizeResponseDto[];
+}
 ```
 
 #### Update General Image
 ```http
 PUT /medias/general/{id}
 Content-Type: application/json
+Authorization: Bearer {jwt_token}
 
 Body: UpdateMediaDto
+```
+
+**Response:**
+```typescript
+MediaResponseDto
 ```
 
 #### Delete General Image
 ```http
 DELETE /medias/general/{id}
+Authorization: Bearer {jwt_token}
 ```
 
-#### Search General Images
-```http
-GET /medias/general/search?q={query}&page={page}&limit={limit}
-```
-
-#### Filter General Images
-```http
-GET /medias/general/filter?search={query}&sortBy={field}&sortOrder={order}&page={page}&limit={limit}
-```
-
-#### Get General Images by Tag
-```http
-GET /medias/general/by-tag/{tagName}?page={page}&limit={limit}
-```
-
-#### Serve General Image
-```http
-GET /medias/general/{id}/file?size={size}
-GET /medias/general/{id}/file/{size}
+**Response:**
+```typescript
+{
+  message: string;
+}
 ```
 
 ## 📝 TypeScript Interfaces
@@ -235,21 +236,13 @@ interface MediaResponseDto {
 }
 ```
 
-### MediaListQueryDto
+### MediaSizeResponseDto
 ```typescript
-interface MediaListQueryDto {
-  search?: string;
-  category?: 'general' | 'profile';
-  fileType?: 'image' | 'audio' | 'video';
-  userId?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  tagName?: string;
-  tagValue?: string;
-  sortBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
-  page?: number;
-  limit?: number;
+interface MediaSizeResponseDto {
+  size: string; // 'thumbnail' | 'small' | 'medium' | 'large' | 'original'
+  width: number;
+  height: number;
+  url: string;
 }
 ```
 
@@ -262,22 +255,11 @@ interface UpdateMediaDto {
 }
 ```
 
-### MediaTagDto
+### InfiniteParamsDto
 ```typescript
-interface MediaTagDto {
-  id: string;
-  mediaId: string;
-  tagName: string;
-  tagValue: string;
-  createdBy: string;
-  createdAt: Date;
-}
-```
-
-### MediaProcessingStatusDto
-```typescript
-interface MediaProcessingStatusDto {
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+interface InfiniteParamsDto {
+  cursor?: string;
+  limit?: number;
 }
 ```
 
@@ -298,12 +280,11 @@ Authorization: Bearer {jwt_token}
 #### General Operations
 - **Authentication**: Required (JWT)
 - **Authorization**: Cần gateway permission
-- **Permissions**: `medias.upload`, `medias.view`, `medias.edit`, `medias.delete`, `medias.download`
-
-#### Cross-category Operations
-- **Authentication**: Required (JWT)
-- **Authorization**: Cần gateway permission
-- **Permissions**: `medias.view`, `medias.download`
+- **Permissions**: 
+  - `medias.upload` - Upload images
+  - `medias.view` - View images
+  - `medias.edit` - Update images
+  - `medias.delete` - Delete images
 
 ## 📊 Response Examples
 
@@ -330,7 +311,7 @@ Authorization: Bearer {jwt_token}
 }
 ```
 
-### Search Response
+### Infinite Scroll Response
 ```json
 {
   "data": [
@@ -351,14 +332,34 @@ Authorization: Bearer {jwt_token}
       "updatedAt": "2024-01-15T10:30:00Z"
     }
   ],
-  "total": 1
+  "nextCursor": "eyJjcmVhdGVkQXQiOiIyMDI0LTAxLTE1VDEwOjMwOjAwWiIsImlkIjoiMTIzZTQ1NjctZTg5Yi0xMmQzLWE0NTYtNDI2NjE0MTc0MDAwIn0=",
+  "hasMore": true
 }
 ```
 
-### File URL Response
+### Image Sizes Response
 ```json
 {
-  "url": "/medias/profile/2024/01/123e4567-e89b-12d3-a456-426614174000/123e4567-e89b-12d3-a456-426614174000_thumbnail.jpg"
+  "sizes": [
+    {
+      "size": "thumbnail",
+      "width": 150,
+      "height": 150,
+      "url": "/medias/profile/2024/01/123e4567-e89b-12d3-a456-426614174000/thumbnail.jpg"
+    },
+    {
+      "size": "small",
+      "width": 300,
+      "height": 300,
+      "url": "/medias/profile/2024/01/123e4567-e89b-12d3-a456-426614174000/small.jpg"
+    },
+    {
+      "size": "original",
+      "width": 1920,
+      "height": 1080,
+      "url": "/medias/profile/2024/01/123e4567-e89b-12d3-a456-426614174000/original.jpg"
+    }
+  ]
 }
 ```
 
@@ -432,17 +433,36 @@ const response = await fetch('/medias/profile/upload', {
 const media = await response.json();
 ```
 
-### Search Media
+### Upload Multiple Images
 ```typescript
-const searchMedia = async (query: string, category?: string) => {
+const formData = new FormData();
+files.forEach(file => {
+  formData.append('files', file);
+});
+
+const response = await fetch('/medias/profile/upload-multiple', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  },
+  body: formData
+});
+
+const mediaList = await response.json();
+```
+
+### Infinite Scroll List
+```typescript
+const loadImages = async (cursor?: string) => {
   const params = new URLSearchParams({
-    q: query,
-    ...(category && { category }),
-    page: '1',
     limit: '10'
   });
+  
+  if (cursor) {
+    params.append('cursor', cursor);
+  }
 
-  const response = await fetch(`/medias/search?${params}`, {
+  const response = await fetch(`/medias/profile?${params}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -452,30 +472,30 @@ const searchMedia = async (query: string, category?: string) => {
 };
 ```
 
-### Get File URL
+### Get Image Sizes
 ```typescript
-const getFileUrl = async (mediaId: string, size: string = 'original') => {
-  const response = await fetch(`/medias/${mediaId}/file/${size}`, {
+const getImageSizes = async (mediaId: string) => {
+  const response = await fetch(`/medias/profile/${mediaId}/sizes`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
   });
 
-  const { url } = await response.json();
-  return url;
+  const { sizes } = await response.json();
+  return sizes;
 };
 ```
 
 ## 📱 Frontend Integration Tips
 
 1. **File Upload**: Sử dụng FormData cho file upload
-2. **Image Display**: Sử dụng file URL để hiển thị ảnh
-3. **Pagination**: Implement pagination cho list views
-4. **Search**: Debounce search input để tránh quá nhiều requests
-5. **Error Handling**: Handle các error cases phù hợp
-6. **Loading States**: Show loading states cho upload và search
-7. **Image Optimization**: Sử dụng appropriate size cho từng use case
-8. **Caching**: Cache file URLs để tránh re-fetch
+2. **Image Display**: Sử dụng file URL từ sizes response để hiển thị ảnh
+3. **Infinite Scroll**: Implement infinite scroll với cursor-based pagination
+4. **Error Handling**: Handle các error cases phù hợp
+5. **Loading States**: Show loading states cho upload và list loading
+6. **Image Optimization**: Sử dụng appropriate size cho từng use case
+7. **Caching**: Cache file URLs để tránh re-fetch
+8. **Multiple Upload**: Support upload multiple files (max 10)
 
 ## 🔧 Development Notes
 
@@ -484,3 +504,5 @@ const getFileUrl = async (mediaId: string, size: string = 'original') => {
 - **File Validation**: Server validate file type và size
 - **Soft Delete**: Media được soft delete, không xóa thật
 - **Date Organization**: Files được organize theo year/month structure
+- **Infinite Scroll**: Sử dụng cursor-based pagination thay vì offset-based
+- **Permissions**: General operations cần gateway permissions

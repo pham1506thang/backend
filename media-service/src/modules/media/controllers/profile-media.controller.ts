@@ -10,17 +10,16 @@ import {
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
-  Res,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
 import { ProfileMediaService } from '../services/profile-media.service';
-import { MediaListQueryDto, UpdateMediaDto, MediaResponseDto, MediaSizeResponseDto } from '../dto';
+import { UpdateMediaDto, MediaResponseDto, MediaSizeResponseDto } from '../dto';
 import {
   CurrentUser,
   JwtUser,
   JwtAuthGuard,
   DOMAINS,
+  InfiniteParamsDto,
 } from 'shared-common';
 import { UseGuards } from '@nestjs/common';
 
@@ -48,13 +47,11 @@ export class ProfileMediaController {
   }
 
   @Get()
-  async listProfileImages(
-    @Query() query: MediaListQueryDto,
+  async findInfiniteProfileImages(
+    @Query() params: InfiniteParamsDto,
     @CurrentUser() user: JwtUser
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    // Only show user's own profile images
-    query.userId = user.id;
-    return this.profileMediaService.listProfileImages(query);
+  ) {
+    return this.profileMediaService.findInfiniteProfileImages(params, user);
   }
 
   @Get(':id')
@@ -91,54 +88,4 @@ export class ProfileMediaController {
     return { message: 'Profile image deleted successfully' };
   }
 
-  @Get('search')
-  async searchProfileImages(
-    @Query('q') query: string,
-    @CurrentUser() user: JwtUser,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    return this.profileMediaService.searchProfileImages(query, { page, limit, userId: user.id });
-  }
-
-  @Get('filter')
-  async filterProfileImages(
-    @Query() query: MediaListQueryDto,
-    @CurrentUser() user: JwtUser
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    query.userId = user.id;
-    return this.profileMediaService.listProfileImages(query);
-  }
-
-  @Get('by-tag/:tagName')
-  async getProfileImagesByTag(
-    @Param('tagName') tagName: string,
-    @CurrentUser() user: JwtUser,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    return this.profileMediaService.getProfileImagesByTag(tagName, { page, limit, userId: user.id });
-  }
-
-  @Get(':id/file')
-  async getProfileImageFile(
-    @Param('id') id: string,
-    @Query('size') size: string = 'original',
-    @CurrentUser() user: JwtUser,
-    @Res() res: Response
-  ): Promise<void> {
-    const fileUrl = await this.profileMediaService.getProfileImageFileUrl(id, size, user);
-    res.json({ url: fileUrl });
-  }
-
-  @Get(':id/file/:size')
-  async getProfileImageFileBySize(
-    @Param('id') id: string,
-    @Param('size') size: string,
-    @CurrentUser() user: JwtUser,
-    @Res() res: Response
-  ): Promise<void> {
-    const fileUrl = await this.profileMediaService.getProfileImageFileUrl(id, size, user);
-    res.json({ url: fileUrl });
-  }
 }

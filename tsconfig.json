@@ -5,6 +5,6 @@
     { "path": "./auth-service" },
     { "path": "./main-service" },
     { "path": "./user-permission-gateway" },
-    { "path": "./medias-service" }
+    { "path": "./media-service" }
   ]
 }

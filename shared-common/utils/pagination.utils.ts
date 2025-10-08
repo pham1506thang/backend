@@ -155,7 +155,7 @@ export async function buildPaginationResponse<T extends ObjectLiteral>(
     .getManyAndCount();
   return {
     data,
-    meta: {
+    pagination: {
       total,
       page: params.page,
       limit: params.limit,

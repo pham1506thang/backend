@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as sharp from 'sharp';
 import { IMAGE_SIZES, PROFILE_IMAGE_SIZES } from '../../../common/constants/image-sizes';
+import { ImageMetadata } from '../../../common/interfaces/file-metadata.interface';
 
 export interface ImageSizeConfig {
   width: number;
@@ -116,18 +117,14 @@ export class ImageProcessingService {
   /**
    * Get image metadata
    */
-  async getImageMetadata(inputBuffer: Buffer): Promise<{
-    width: number;
-    height: number;
-    format: string;
-    size: number;
-  }> {
+  async getImageMetadata(inputBuffer: Buffer): Promise<ImageMetadata> {
     const metadata = await sharp(inputBuffer).metadata();
     return {
       width: metadata.width || 0,
       height: metadata.height || 0,
       format: metadata.format || 'unknown',
       size: inputBuffer.length,
+      mtime: new Date(), // Current time for buffer
     };
   }
 

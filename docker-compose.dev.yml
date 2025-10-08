@@ -33,7 +33,7 @@ services:
       - ./media-service:/app/media-service
       - ./shared-common:/app/shared-common
       - /app/node_modules
-      - ./storage:/app/storage
+      - media-storage:/app/storage  # Docker volume instead of host mount
     environment:
       - NODE_ENV=development
 
@@ -48,3 +48,6 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+
+volumes:
+  media-storage:  # Docker volume for media files in development

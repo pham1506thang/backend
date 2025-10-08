@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './user.entity';
@@ -50,7 +49,7 @@ export class UserService {
   }
 
   async findByIdWithPermissions(id: string) {
-    const user = await this.userRepository.findByIdWithPermissions(id);
+    const user = await this.userRepository.findOneWithRelations({ id }, ['roles', 'roles.permissions']);
     if (!user) {
       throw new NotFoundException({
         message: 'Không tìm thấy người dùng',

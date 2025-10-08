@@ -12,9 +12,11 @@ export * from './decorators/controller-feature.decorator';
 export * from './interfaces/jwt-user.interface';
 export * from './interfaces/base-entity.interface';
 export * from './interfaces/pagination.interface';
+export * from './interfaces/cursor.interface';
 
 // DTOs
 export * from './dto/pagination-params.dto';
+export * from './dto/infinite-params.dto';
 
 // Constants
 export * from './constants/permissions';
@@ -27,6 +29,7 @@ export * from './repositories/base.repository';
 
 // Utils
 export * from './utils/pagination.utils';
+export * from './utils/cursor.utils';
 export * from './utils/bootstrap.utils';
 
 // Strategies

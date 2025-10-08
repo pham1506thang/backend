@@ -10,12 +10,10 @@ import {
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
-  Res,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
 import { GeneralMediaService } from '../services/general-media.service';
-import { MediaListQueryDto, UpdateMediaDto, MediaResponseDto, MediaSizeResponseDto } from '../dto';
+import { UpdateMediaDto, MediaResponseDto, MediaSizeResponseDto } from '../dto';
 import {
   CurrentUser,
   JwtUser,
@@ -23,6 +21,7 @@ import {
   GatewayRoleGuard,
   RolePermission,
   DOMAINS,
+  InfiniteParamsDto,
 } from 'shared-common';
 import { UseGuards } from '@nestjs/common';
 
@@ -53,10 +52,10 @@ export class GeneralMediaController {
 
   @Get()
   @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.VIEW)
-  async listGeneralImages(
-    @Query() query: MediaListQueryDto
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    return this.generalMediaService.listGeneralImages(query);
+  async findInfiniteGeneralImages(
+    @Query() params: InfiniteParamsDto
+  ) {
+    return this.generalMediaService.findInfiniteGeneralImages(params);
   }
 
   @Get(':id')
@@ -91,53 +90,4 @@ export class GeneralMediaController {
     return { message: 'General image deleted successfully' };
   }
 
-  @Get('search')
-  @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.VIEW)
-  async searchGeneralImages(
-    @Query('q') query: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    return this.generalMediaService.searchGeneralImages(query, { page, limit });
-  }
-
-  @Get('filter')
-  @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.VIEW)
-  async filterGeneralImages(
-    @Query() query: MediaListQueryDto
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    return this.generalMediaService.listGeneralImages(query);
-  }
-
-  @Get('by-tag/:tagName')
-  @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.VIEW)
-  async getGeneralImagesByTag(
-    @Param('tagName') tagName: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number
-  ): Promise<{ data: MediaResponseDto[]; total: number }> {
-    return this.generalMediaService.getGeneralImagesByTag(tagName, { page, limit });
-  }
-
-  @Get(':id/file')
-  @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.DOWNLOAD)
-  async getGeneralImageFile(
-    @Param('id') id: string,
-    @Query('size') size: string = 'original',
-    @Res() res: Response
-  ): Promise<void> {
-    const fileUrl = await this.generalMediaService.getGeneralImageFileUrl(id, size);
-    res.json({ url: fileUrl });
-  }
-
-  @Get(':id/file/:size')
-  @RolePermission(DOMAINS.MEDIAS.value, DOMAINS.MEDIAS.actions.DOWNLOAD)
-  async getGeneralImageFileBySize(
-    @Param('id') id: string,
-    @Param('size') size: string,
-    @Res() res: Response
-  ): Promise<void> {
-    const fileUrl = await this.generalMediaService.getGeneralImageFileUrl(id, size);
-    res.json({ url: fileUrl });
-  }
 }
