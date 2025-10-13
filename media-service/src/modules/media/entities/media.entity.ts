@@ -1,21 +1,15 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
 import { MEDIA_FILE_TYPES, MEDIA_CATEGORIES, MEDIA_PROCESSING_STATUS } from '../../../common/constants/image-sizes';
 import { MediaSize } from './media-size.entity';
 import { MediaTag } from './media-tag.entity';
+import { BaseEntity } from 'shared-common';
 
 @Entity('media')
-export class Media {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Media extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   originalName: string;
 
@@ -72,14 +66,11 @@ export class Media {
   @Column({ type: 'jsonb', default: {} })
   metadata: Record<string, any>; // flexible metadata storage
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  processedAt?: Date; // When processing completed
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt?: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  publishedAt?: Date; // When media was published
 
   // Relationships
   @OneToMany(() => MediaSize, (size) => size.media, { cascade: true })

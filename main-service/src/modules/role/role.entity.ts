@@ -1,18 +1,14 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
 import { Permission } from './permission.entity';
-import { IBaseEntity } from 'shared-common';
+import { BaseEntity } from 'shared-common';
 
 @Entity('roles')
-export class Role implements IBaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Role extends BaseEntity {
   @Column({ unique: true })
   code: string;
 
@@ -34,10 +30,4 @@ export class Role implements IBaseEntity {
   @ManyToMany(() => Permission)
   @JoinTable({ name: 'role_permissions' })
   permissions: Permission[];
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
 }

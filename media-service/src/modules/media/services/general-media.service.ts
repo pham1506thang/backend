@@ -65,9 +65,11 @@ export class GeneralMediaService {
     await this.baseMediaService.generateImageSizes(media, file.buffer, date, MEDIA_CATEGORIES.GENERAL, IMAGE_SIZES);
 
     // Update processing status to completed and add processing metadata
+    const processedAt = new Date();
     media.processingStatus = MEDIA_PROCESSING_STATUS.COMPLETED;
+    media.processedAt = processedAt;
     media.metadata = {
-      processingCompletedAt: new Date().toISOString(),
+      processingCompletedAt: processedAt.toISOString(),
       generatedSizes: Object.keys(IMAGE_SIZES),
     };
     await this.mediaRepository.save(media);
@@ -170,7 +172,11 @@ export class GeneralMediaService {
 
     // Update metadata
     Object.assign(media, updateData);
-    media.updatedAt = new Date();
+    
+    // Set publishedAt if media becomes public
+    if (updateData.isPublic && !media.isPublic) {
+      media.publishedAt = new Date();
+    }
 
     const updatedMedia = await this.mediaRepository.save(media);
     return this.mapToResponseDto(updatedMedia);
@@ -195,7 +201,6 @@ export class GeneralMediaService {
 
     // Soft delete
     media.isActive = false;
-    media.updatedAt = new Date();
     await this.mediaRepository.save(media);
   }
 

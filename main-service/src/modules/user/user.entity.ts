@@ -1,19 +1,15 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
 import { Role } from '../role/role.entity';
-import { IBaseEntity } from 'shared-common';
+import { BaseEntity } from 'shared-common';
 import { USER_STATUS } from './user-status.constant';
 
 @Entity('users')
-export class User implements IBaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class User extends BaseEntity {
   @Column({ unique: true })
   username: string;
 
@@ -34,7 +30,16 @@ export class User implements IBaseEntity {
   status: string;
 
   @Column({ type: 'timestamp', nullable: true })
-  lastLogin?: Date;
+  lastLoginAt?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastActiveAt?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifiedAt?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordChangedAt?: Date;
 
   @ManyToMany(() => Role)
   @JoinTable({ name: 'user_roles' })
@@ -42,10 +47,4 @@ export class User implements IBaseEntity {
 
   @Column({ default: false })
   isDeleted: boolean;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
 }

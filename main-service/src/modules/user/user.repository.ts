@@ -99,7 +99,4 @@ export class UserRepository extends BaseRepository<User> {
     return this.userRepo.save(entity);
   }
 
-  async updateLastLogin(id: string): Promise<void> {
-    await this.userRepo.update(id, { lastLogin: new Date() });
-  }
 }

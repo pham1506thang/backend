@@ -1,12 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Entity, Column, ManyToMany } from 'typeorm';
 import { Role } from './role.entity';
-import { IBaseEntity, DomainType, ActionType } from 'shared-common';
+import { BaseEntity, DomainType, ActionType } from 'shared-common';
 
 @Entity('permissions')
-export class Permission implements IBaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Permission extends BaseEntity {
   @Column({ type: 'varchar' })
   domain: DomainType;
 

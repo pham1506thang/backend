@@ -1,20 +1,16 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   Index,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { Media } from './media.entity';
+import { BaseEntity } from 'shared-common';
 
 @Entity('media_sizes')
 @Index(['mediaId', 'sizeName'], { unique: true }) // Unique size per media
-export class MediaSize {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class MediaSize extends BaseEntity {
   @Column({ type: 'uuid' })
   mediaId: string;
 
@@ -38,9 +34,6 @@ export class MediaSize {
 
   @Column({ type: 'int', nullable: true })
   quality?: number; // for compressed versions
-
-  @CreateDateColumn()
-  createdAt: Date;
 
   // Relationships
   @ManyToOne(() => Media, (media) => media.sizes, { onDelete: 'CASCADE' })

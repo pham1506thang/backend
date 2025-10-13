@@ -1,20 +1,16 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   ManyToOne,
   JoinColumn,
   Index,
 } from 'typeorm';
 import { Media } from './media.entity';
+import { BaseEntity } from 'shared-common';
 
 @Entity('media_tags')
 @Index(['mediaId', 'tagName', 'tagValue'], { unique: true }) // Unique tag per media
-export class MediaTag {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class MediaTag extends BaseEntity {
   @Column({ type: 'uuid' })
   mediaId: string;
 
@@ -26,9 +22,6 @@ export class MediaTag {
 
   @Column({ type: 'uuid' })
   createdBy: string; // JWTUser.id
-
-  @CreateDateColumn()
-  createdAt: Date;
 
   // Relationships
   @ManyToOne(() => Media, (media) => media.tags, { onDelete: 'CASCADE' })

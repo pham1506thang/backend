@@ -142,8 +142,25 @@ export class UserService {
   }
 
   async updateLastLogin(id: string) {
-    await this.userRepository.updateLastLogin(id);
+    await this.userRepository.update(id, {
+      lastLoginAt: new Date(),
+      lastActiveAt: new Date(),
+    });
     return { success: true, message: 'Last login updated successfully' };
+  }
+
+  async updateLastActive(id: string) {
+    await this.userRepository.update(id, {
+      lastActiveAt: new Date(),
+    });
+    return { success: true, message: 'Last active updated successfully' };
+  }
+
+  async verifyEmail(id: string) {
+    await this.userRepository.update(id, {
+      emailVerifiedAt: new Date(),
+    });
+    return { success: true, message: 'Email verified successfully' };
   }
 
   async changePassword(userId: string, dto: ChangePasswordDTO) {
@@ -173,6 +190,7 @@ export class UserService {
     // Update password
     await this.userRepository.update(userId, {
       password: hashedPassword,
+      passwordChangedAt: new Date(),
     });
   }
 

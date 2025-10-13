@@ -6,7 +6,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { IBaseEntity } from '../interfaces/base-entity.interface';
+import { BaseEntity } from '../interfaces/base-entity.interface';
 import { PaginationResult } from '../interfaces/pagination.interface';
 import { InfinitePaginationResult } from '../interfaces/cursor.interface';
 import {
@@ -19,7 +19,7 @@ import { CursorUtils } from '../utils/cursor.utils';
 import { PaginationParamsDto } from '../dto/pagination-params.dto';
 import { InfiniteParamsDto } from '../dto/infinite-params.dto';
 
-export class BaseRepository<T extends IBaseEntity> {
+export class BaseRepository<T extends BaseEntity> {
   constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(): Promise<T[]> {
