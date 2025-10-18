@@ -1,20 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Media } from '../entities/media.entity';
-import { MediaSize } from '../entities/media-size.entity';
-import { JwtUser } from 'shared-common';
-import { MEDIA_CATEGORIES, MEDIA_FILE_TYPES } from '../../../common/constants/image-sizes';
+import { MEDIA_FILE_TYPES } from '../../../common/constants/image-sizes';
 import { StoragePathUtil } from '../../../common/utils/storage-path.util';
 import { ImageProcessingService } from './image-processing.service';
 import { LocalStorageService } from './local-storage.service';
 import { randomUUID } from 'crypto';
+import { MediaSizeRepository } from '../repositories/media-size.repository';
 
 @Injectable()
 export class BaseMediaService {
   constructor(
-    @InjectRepository(MediaSize)
-    private mediaSizeRepository: Repository<MediaSize>,
+    private mediaSizeRepository: MediaSizeRepository,
     private imageProcessingService: ImageProcessingService,
     private localStorageService: LocalStorageService,
   ) {}
@@ -56,7 +52,7 @@ export class BaseMediaService {
       const dimensions = await this.imageProcessingService.getImageMetadata(processedResult);
 
       // Save size record
-      const mediaSize = this.mediaSizeRepository.create({
+      await this.mediaSizeRepository.create({
         mediaId: media.id,
         sizeName,
         fileName,
@@ -67,7 +63,6 @@ export class BaseMediaService {
         quality: sizeConfig.quality,
       });
 
-      await this.mediaSizeRepository.save(mediaSize);
     }
   }
 

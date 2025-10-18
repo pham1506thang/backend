@@ -6,7 +6,7 @@ import {
   IsEmail,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { OmitType } from '@nestjs/mapped-types';
+import { PickType } from '@nestjs/mapped-types';
 
 export class CreateUserDTO {
   @IsString()
@@ -20,23 +20,38 @@ export class CreateUserDTO {
   @IsString()
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  name?: string;
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  lastName?: string;
 
   @IsEmail()
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   email?: string;
 
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  thumbnailAvatarUrl?: string;
+
   @IsArray()
   @IsOptional()
   roles?: string[];
 }
 
-export class UpdateUserDTO extends OmitType(CreateUserDTO, [
-  'password',
-  'username',
-  'roles',
-] as never[]) {
+export class UpdateUserDTO extends PickType(CreateUserDTO, [
+  'firstName',
+  'lastName',
+  'email',
+  'avatarUrl',
+  'thumbnailAvatarUrl',
+]) {
   @IsString()
   @IsOptional()
   status?: string;

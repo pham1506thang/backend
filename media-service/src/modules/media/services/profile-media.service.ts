@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Media } from '../entities/media.entity';
 import { MediaSize } from '../entities/media-size.entity';
 import { MediaTag } from '../entities/media-tag.entity';
@@ -16,8 +14,6 @@ import { InfiniteParamsDto } from 'shared-common';
 export class ProfileMediaService {
   constructor(
     private mediaRepository: MediaRepository,
-    @InjectRepository(MediaSize)
-    private mediaSizeRepository: Repository<MediaSize>,
     private baseMediaService: BaseMediaService,
   ) {}
 
@@ -128,28 +124,6 @@ export class ProfileMediaService {
     }
 
     return this.mapToResponseDto(media);
-  }
-
-  /**
-   * Get all available sizes for profile image with detailed information
-   */
-  async getProfileImageSizes(id: string, user: JwtUser): Promise<{ sizes: MediaSizeResponseDto[] }> {
-    const media = await this.mediaRepository.findOneWithRelations(
-      { id, category: MEDIA_CATEGORIES.PROFILE, isActive: true, uploaderId: user.id }
-    );
-
-    if (!media) {
-      throw new Error('Profile image not found');
-    }
-
-    const mediaSizes = await this.mediaSizeRepository.find({
-      where: { mediaId: id },
-      order: { createdAt: 'ASC' },
-    });
-
-    return {
-      sizes: mediaSizes.map(size => this.mapMediaSizeToResponseDto(size, media)),
-    };
   }
 
   /**

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ProfileMediaService } from '../services/profile-media.service';
-import { UpdateMediaDto, MediaResponseDto, MediaSizeResponseDto } from '../dto';
+import { UpdateMediaDto, MediaResponseDto } from '../dto';
 import {
   CurrentUser,
   JwtUser,
@@ -60,14 +60,6 @@ export class ProfileMediaController {
     @CurrentUser() user: JwtUser
   ): Promise<MediaResponseDto> {
     return this.profileMediaService.getProfileImage(id, user);
-  }
-
-  @Get(':id/sizes')
-  async getProfileImageSizes(
-    @Param('id') id: string,
-    @CurrentUser() user: JwtUser
-  ): Promise<{ sizes: MediaSizeResponseDto[] }> {
-    return this.profileMediaService.getProfileImageSizes(id, user);
   }
 
   @Put(':id')

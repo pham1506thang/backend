@@ -11,6 +11,7 @@ import { LocalStorageService } from './services/local-storage.service';
 import { FileOperationsService } from './services/file-operations.service';
 import { ImageProcessingService } from './services/image-processing.service';
 import { GatewayRoleGuard, UserPermissionService, UserPermissionGatewayMicroserviceModule } from 'shared-common';
+import { MediaSizeRepository } from './repositories/media-size.repository';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GatewayRoleGuard, UserPermissionService, UserPermissionGatewayMicroserv
   ],
   providers: [
     MediaRepository,
+    MediaSizeRepository,
     BaseMediaService,
     ProfileMediaService,
     GeneralMediaService,

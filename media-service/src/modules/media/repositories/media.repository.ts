@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, FindOneOptions } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository } from 'shared-common';
 import { Media } from '../entities/media.entity';
 

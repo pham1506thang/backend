@@ -29,7 +29,7 @@ export class UserService {
   async findPaginatedUsers(params: PaginationParamsDto) {
     return this.userRepository.findWithPagination({
       ...params,
-      searchFields: ['username', 'name', 'email'],
+      searchFields: ['username', 'firstName', 'lastName', 'email'],
     });
   }
 
@@ -103,9 +103,7 @@ export class UserService {
       });
     }
     
-    // Remove roles from dto as it should be handled separately
-    const { roles, ...updateData } = dto as any;
-    await this.userRepository.update(id, updateData);
+    await this.userRepository.update(id, dto);
     return this.userRepository.findById(id);
   }
 

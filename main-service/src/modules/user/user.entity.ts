@@ -17,7 +17,10 @@ export class User extends BaseEntity {
   password: string;
 
   @Column({ nullable: true })
-  name?: string;
+  firstName?: string;
+
+  @Column({ nullable: true })
+  lastName?: string;
 
   @Column({ nullable: true })
   email?: string;
@@ -40,6 +43,12 @@ export class User extends BaseEntity {
 
   @Column({ type: 'timestamp', nullable: true })
   passwordChangedAt?: Date;
+
+  @Column({ nullable: true })
+  avatarUrl?: string;
+
+  @Column({ nullable: true })
+  thumbnailAvatarUrl?: string;
 
   @ManyToMany(() => Role)
   @JoinTable({ name: 'user_roles' })

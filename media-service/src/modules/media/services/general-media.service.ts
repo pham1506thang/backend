@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Media } from '../entities/media.entity';
-import { MediaSize } from '../entities/media-size.entity';
 import { MediaTag } from '../entities/media-tag.entity';
 import { MediaRepository } from '../repositories/media.repository';
 import { JwtUser } from 'shared-common';
@@ -11,13 +8,12 @@ import { StoragePathUtil } from '../../../common/utils/storage-path.util';
 import { BaseMediaService } from './base-media.service';
 import { MediaResponseDto, MediaSizeResponseDto, MediaTagResponseDto } from '../dto';
 import { InfiniteParamsDto } from 'shared-common';
+import { MediaSize } from '../entities';
 
 @Injectable()
 export class GeneralMediaService {
   constructor(
     private mediaRepository: MediaRepository,
-    @InjectRepository(MediaSize)
-    private mediaSizeRepository: Repository<MediaSize>,
     private baseMediaService: BaseMediaService,
   ) {}
 
@@ -128,28 +124,6 @@ export class GeneralMediaService {
     }
 
     return this.mapToResponseDto(media);
-  }
-
-  /**
-   * Get all available sizes for general image with detailed information
-   */
-  async getGeneralImageSizes(id: string): Promise<{ sizes: MediaSizeResponseDto[] }> {
-    const media = await this.mediaRepository.findOneWithRelations(
-      { id, category: MEDIA_CATEGORIES.GENERAL, isActive: true }
-    );
-
-    if (!media) {
-      throw new Error('General image not found');
-    }
-
-    const mediaSizes = await this.mediaSizeRepository.find({
-      where: { mediaId: id },
-      order: { createdAt: 'ASC' },
-    });
-
-    return {
-      sizes: mediaSizes.map(size => this.mapMediaSizeToResponseDto(size, media)),
-    };
   }
 
   /**

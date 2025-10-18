@@ -5,12 +5,25 @@ export class UpdateProfileDTO {
   @IsString()
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  name?: string;
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  lastName?: string;
 
   @IsEmail()
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   email?: string;
+
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  thumbnailAvatarUrl?: string;
 }
 
 export class ChangePasswordDTO {
